@@ -988,61 +988,126 @@
     };
 
     /* ===== EXCEL IMPORT ===== */
-    window.previewExcel = async function previewExcel() {
-      const file = document.getElementById("excelFile").files[0];
-      if (!file) return alert("Chọn file Excel trước nha anh.");
+window.previewExcel = async function previewExcel() {
+  const file = document.getElementById("excelFile").files[0];
+  if (!file) return alert("Chọn file Excel trước nha anh.");
 
-      const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data);
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      previewRows = XLSX.utils.sheet_to_json(sheet);
+  try {
+    const data = await file.arrayBuffer();
+    const workbook = XLSX.read(data);
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    previewRows = XLSX.utils.sheet_to_json(sheet);
 
-      if (!previewRows.length) {
-        document.getElementById("excelPreview").innerHTML = "<p>File không có dữ liệu.</p>";
-        return;
-      }
+    if (!previewRows.length) {
+      document.getElementById("excelPreview").innerHTML = "<p>File không có dữ liệu.</p>";
+      return;
+    }
 
-      const headers = Object.keys(previewRows[0]);
-      const rowsHtml = previewRows.slice(0, 10).map(row => {
-        return "<tr>" + headers.map(h => `<td>${row[h] || ""}</td>`).join("") + "</tr>";
-      }).join("");
+    // Log headers để debug
+    console.log("📋 Excel headers:", Object.keys(previewRows[0]));
+    console.log("📋 Dòng đầu tiên:", previewRows[0]);
 
-      document.getElementById("excelPreview").innerHTML = `
-        <p class="muted">Preview ${previewRows.length} dòng. Hiển thị tối đa 10 dòng đầu.</p>
-        <table>
-          <thead><tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr></thead>
-          <tbody>${rowsHtml}</tbody>
-        </table>
-      `;
+    const headers = Object.keys(previewRows[0]);
+    const rowsHtml = previewRows.slice(0, 10).map(row => {
+      return "<tr>" + headers.map(h => `<td>${row[h] ?? ""}</td>`).join("") + "</tr>";
+    }).join("");
+
+    document.getElementById("excelPreview").innerHTML = `
+      <p class="muted">Preview ${previewRows.length} dòng. Hiển thị tối đa 10 dòng đầu.</p>
+      <table>
+        <thead><tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    `;
+  } catch (err) {
+    alert("Lỗi đọc file Excel: " + err.message);
+    console.error("previewExcel error:", err);
+  }
+};
+
+window.saveExcelRows = async function saveExcelRows() {
+  if (!supabaseClient || !currentUser) return alert("Chưa đăng nhập.");
+  if (!previewRows.length) return alert("Chưa có dữ liệu preview để lưu.");
+
+  // Helper: lấy giá trị từ nhiều possible key (hỗ trợ cả tiếng Việt lẫn tiếng Anh)
+  function pick(row, ...keys) {
+    for (const k of keys) {
+      const v = row[k];
+      if (v !== undefined && v !== null && String(v).trim() !== "") return String(v).trim();
+    }
+    return "";
+  }
+
+  const mapped = previewRows.map(row => {
+    const term = pick(row,
+      "term", "hanzi", "word", "Word",
+      "Từ tiếng trung", "Từ tiếng Trung", "Từ", "Hán tự",
+      "từ tiếng trung", "từ"
+    );
+    const meaning_vi = pick(row,
+      "meaning_vi", "meaning", "vi", "meaning_vi ",
+      "Nghĩa tiếng Việt", "Nghĩa", "nghĩa", "Ý nghĩa",
+      "nghĩa tiếng việt"
+    );
+    const pinyin = pick(row,
+      "pinyin", "Pinyin", "phát âm", "Phát âm", "pinyin "
+    );
+    const example = pick(row,
+      "example", "ví dụ", "Ví dụ", "ví_dụ", "Ví_dụ"
+    );
+    const language = pick(row, "language", "Language", "ngôn ngữ", "Ngôn ngữ") || currentLanguage;
+    const category = pick(row, "category", "Category", "HSK", "hsk", "loại", "Loại") || "excel";
+
+    return {
+      user_id: currentUser.id,
+      language: language,
+      category: category,
+      term: term,
+      pinyin: pinyin,
+      meaning_vi: meaning_vi,
+      example: example,
+      grammar_note: pick(row, "grammar_note", "Grammar note", "ghi chú ngữ pháp") || "",
+      video_link: pick(row, "video_link", "Video link", "link video") || ""
     };
+  }).filter(x => x.term && x.meaning_vi);
 
-    window.saveExcelRows = async function saveExcelRows() {
-      if (!supabaseClient || !currentUser) return alert("Chưa đăng nhập.");
-      if (!previewRows.length) return alert("Chưa có dữ liệu preview để lưu.");
+  if (!mapped.length) {
+    console.warn("❌ Không có dòng hợp lệ sau khi map. Headers trong file:", Object.keys(previewRows[0]));
+    console.warn("❌ Dòng đầu tiên raw:", JSON.stringify(previewRows[0]));
+    return alert(
+      "Không có dòng hợp lệ nào.\n\n" +
+      "Có thể header trong Excel không khớp với code mong đợi.\n" +
+      "Mở F12 → Console để xem chi tiết headers đã nhận được.\n\n" +
+      "Headers nhận được: " + Object.keys(previewRows[0]).join(", ")
+    );
+  }
 
-      const mapped = previewRows.map(row => ({
-        user_id: currentUser.id,
-        language: row.language || row.Language || currentLanguage,
-        category: row.category || row.Category || "excel",
-        term: row.term || row.hanzi || row.word || row.Word || "",
-        pinyin: row.pinyin || "",
-        meaning_vi: row.meaning_vi || row.meaning || row.vi || "",
-        example: row.example || "",
-        grammar_note: row.grammar_note || "",
-        video_link: row.video_link || ""
-      })).filter(x => x.term && x.meaning_vi);
+  console.log("✅ Sẽ insert", mapped.length, "dòng. Mẫu:", mapped[0]);
 
-      if (!mapped.length) return alert("Không có dòng hợp lệ.");
+  try {
+    const { data, error } = await supabaseClient.from("vocabulary_items").insert(mapped);
 
-      const { error } = await supabaseClient.from("vocabulary_items").insert(mapped);
-      if (error) return alert("Import lỗi: " + error.message);
+    if (error) {
+      console.error("❌ Lỗi insert Supabase:", error);
+      // Hiển thị lỗi rõ ràng, không lẫn URL
+      let msg = error.message || "Không rõ lỗi";
+      if (error.code) msg += " (code: " + error.code + ")";
+      if (error.hint) msg += "\nHint: " + error.hint;
+      if (error.details) msg += "\nDetails: " + error.details;
+      alert("Import lỗi:\n" + msg);
+      return;
+    }
 
-      previewRows = [];
-      document.getElementById("excelPreview").innerHTML = "";
-      document.getElementById("excelFile").value = "";
-      await loadDataFromBackend();
-      alert("Đã lưu " + mapped.length + " dòng từ Excel vào backend.");
-    };
+    previewRows = [];
+    document.getElementById("excelPreview").innerHTML = "";
+    document.getElementById("excelFile").value = "";
+    await loadDataFromBackend();
+    alert("Đã lưu " + mapped.length + " dòng từ Excel vào backend.");
+  } catch (err) {
+    console.error("❌ Lỗi bất ngờ khi import:", err);
+    alert("Lỗi bất ngờ: " + err.message);
+  }
+};
 
     /* ===== ADD WORK ===== */
     window.addWork = async function addWork() {
