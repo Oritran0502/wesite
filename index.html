@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -474,6 +475,7 @@
           <h1 id="welcomeText">Xin chào</h1>
           <p id="roleText">User workspace</p>
         </div>
+        <div class="pill">🌿 MVP Frontend Demo</div>
       </div>
 
       <section id="dashboard" class="section active">
@@ -663,29 +665,15 @@
     </section>
   </main>
 
-<script>
-    /* ===== SUPABASE CONFIG ===== */
+  <script>
     const SUPABASE_URL = "https://tiangjltikmvznuosxqn.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpYW5namx0aWttdnpudW9zeHFuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NDAzOTgsImV4cCI6MjA5ODIxNjM5OH0.PvTkoFaVfqRfIk3X4u0oiQuU-ANSEPkTFpzB0rB0k2Y";
 
-    let supabaseClient = null;
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    try {
-      if (!window.supabase) throw new Error("Supabase SDK chưa load. Kiểm tra CDN.");
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-      console.log("✅ Supabase OK");
-    } catch (err) {
-      console.error("❌", err);
-      document.getElementById("loginPage").innerHTML = `
-        <div class="login-card" style="border:2px solid #ef4444">
-          <h1 style="color:#ef4444">Lỗi kết nối Supabase</h1>
-          <p class="hint">${err.message}</p>
-        </div>`;
-    }
-
-    /* ===== STATE ===== */
     let currentUser = null;
     let currentProfile = null;
+
     let currentLanguage = "zh";
     let reviewLanguage = "zh";
     let translateDirection = "to_vi";
@@ -698,405 +686,393 @@
     let paragraphs = [];
     let videos = [];
     let works = [];
-    let reviewLogs = [];
     let users = [];
 
-    function owner(item) { return item.user_id === currentUser?.id; }
-
-    /* ===== HELPER: BỎ DẤU TIẾNG VIỆT ===== */
-    function stripVN(str) {
-      return String(str).normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-        .replace(/đ/g,"d").replace(/Đ/g,"D").toLowerCase().trim();
-    }
-    function pick(row, ...names) {
-      for (const n of names) { const v = row[n]; if (v !== undefined && v !== null && String(v).trim() !== "") return String(v).trim(); }
-      const map = {};
-      for (const k of Object.keys(row)) map[stripVN(k)] = { rawKey: k, value: row[k] };
-      for (const n of names) { const m = map[stripVN(n)]; if (m && m.value !== undefined && m.value !== null && String(m.value).trim() !== "") return String(m.value).trim(); }
-      return "";
+    function owner(item) {
+      return item.user_id === currentUser?.id;
     }
 
-    /* ===== LOGIN / LOGOUT ===== */
-    window.login = async function login() {
-      if (!supabaseClient) return alert("Supabase chưa sẵn sàng.");
+    async function login() {
       const email = document.getElementById("loginUsername").value.trim();
       const password = document.getElementById("loginPassword").value.trim();
-      if (!email || !password) return alert("Nhập email và password.");
 
-      try {
-        const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-        if (error) return alert("Lỗi: " + error.message);
-        currentUser = data.user;
-        await loadProfile();
-        await loadDataFromBackend();
-        await logActivity("login", "Đăng nhập thành công", { email });
-        showApp();
-      } catch (err) { alert("Lỗi: " + err.message); }
-    };
+      if (!email || !password) {
+        alert("Nhập email và password trước nha anh.");
+        return;
+      }
 
-    window.logout = async function logout() {
-      await logActivity("logout", "Đăng xuất");
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+      if (error) {
+        alert("Đăng nhập lỗi: " + error.message);
+        return;
+      }
+
+      currentUser = data.user;
+      await loadProfile();
+      await loadDataFromBackend();
+      showApp();
+    }
+
+    async function logout() {
       await supabaseClient.auth.signOut();
-      currentUser = null; currentProfile = null;
+      currentUser = null;
+      currentProfile = null;
       document.getElementById("app").classList.add("hidden");
       document.getElementById("loginPage").classList.remove("hidden");
-    };
+    }
 
-    /* ===== PROFILE ===== */
     async function loadProfile() {
-      try {
-        const { data, error } = await supabaseClient.from("profiles").select("*").eq("id", currentUser.id).single();
-        currentProfile = (error || !data) ? { id: currentUser.id, full_name: currentUser.email, role: "user" } : data;
-      } catch (e) { currentProfile = { id: currentUser.id, full_name: currentUser.email, role: "user" }; }
+      const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .eq("id", currentUser.id)
+        .single();
+
+      currentProfile = error || !data
+        ? { id: currentUser.id, full_name: currentUser.email, role: "user" }
+        : data;
     }
 
     async function loadUsersForAdmin() {
-      if (currentProfile?.role !== "admin") { users = []; return; }
-      try {
-        const { data, error } = await supabaseClient.from("profiles").select("*").order("created_at", { ascending: false });
-        users = error ? [] : (data || []);
-      } catch (e) { users = []; }
+      if (currentProfile?.role !== "admin") {
+        users = [];
+        return;
+      }
+
+      const { data, error } = await supabaseClient
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      users = error ? [] : (data || []);
     }
 
-    /* ===== LOAD ALL DATA ===== */
     async function loadDataFromBackend() {
-      try {
-        const [v, g, p, vi, w, r] = await Promise.all([
-          supabaseClient.from("vocabulary_items").select("*").order("created_at", { ascending: false }),
-          supabaseClient.from("grammar_items").select("*").order("created_at", { ascending: false }),
-          supabaseClient.from("paragraph_items").select("*").order("created_at", { ascending: false }),
-          supabaseClient.from("video_links").select("*").order("created_at", { ascending: false }),
-          supabaseClient.from("work_processes").select("*").order("created_at", { ascending: false }),
-          supabaseClient.from("review_logs").select("*").order("created_at", { ascending: false }).limit(100)
-        ]);
-        vocab = v.data || []; grammar = g.data || []; paragraphs = p.data || [];
-        videos = vi.data || []; works = w.data || []; reviewLogs = r.data || [];
-      } catch (e) { vocab=[]; grammar=[]; paragraphs=[]; videos=[]; works=[]; reviewLogs=[]; }
+      const { data: vocabData } = await supabaseClient
+        .from("vocabulary_items")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      const { data: grammarData } = await supabaseClient
+        .from("grammar_items")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      const { data: paragraphData } = await supabaseClient
+        .from("paragraph_items")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      const { data: videoData } = await supabaseClient
+        .from("video_links")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      const { data: workData } = await supabaseClient
+        .from("work_processes")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      vocab = vocabData || [];
+      grammar = grammarData || [];
+      paragraphs = paragraphData || [];
+      videos = videoData || [];
+      works = workData || [];
+
       await loadUsersForAdmin();
       renderAll();
     }
 
-    /* ===== SHOW APP ===== */
     function showApp() {
       if (!currentUser) return;
+
       document.getElementById("loginPage").classList.add("hidden");
       document.getElementById("app").classList.remove("hidden");
-      document.getElementById("welcomeText").innerText = "Xin chào " + (currentProfile?.full_name || currentUser.email) + " 👋";
-      document.getElementById("roleText").innerText = "Role: " + (currentProfile?.role || "user");
-      const ab = document.getElementById("adminNavBtn");
-      if (ab) ab.classList.toggle("hidden", currentProfile?.role !== "admin");
+
+      document.getElementById("welcomeText").innerText =
+        "Xin chào " + (currentProfile?.full_name || currentUser.email) + " 👋";
+
+      document.getElementById("roleText").innerText =
+        "Role: " + (currentProfile?.role || "user");
+
+      const adminBtn = document.getElementById("adminNavBtn");
+      if (adminBtn) {
+        adminBtn.classList.toggle("hidden", currentProfile?.role !== "admin");
+      }
+
       renderAll();
     }
 
-    /* ===== NAVIGATION ===== */
-    window.showSection = function showSection(id, btn) {
-      if (id === "admin" && currentProfile?.role !== "admin") return alert("Không có quyền.");
+    function showSection(id, btn) {
+      if (id === "admin" && currentProfile?.role !== "admin") {
+        alert("Tài khoản user không có quyền vào Admin.");
+        return;
+      }
+
       document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
       document.getElementById(id).classList.add("active");
+
       document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      if (id === "history") loadActivityLogs().then(() => renderHistory());
+
       renderAll();
-    };
-
-    window.setLanguage = function(lang, btn) {
-      currentLanguage = lang;
-      btn.closest(".tabs").querySelectorAll("button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      renderLanguageList();
-    };
-
-    window.setReviewLanguage = function(lang, btn) {
-      reviewLanguage = lang;
-      btn.closest(".tabs").querySelectorAll("button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      flashIndex = 0; flashFlipped = false;
-      renderFlashcard(); renderGrammarReview(); renderTranslateUI();
-    };
-
-    window.setTranslateDirection = function(dir, btn) {
-      translateDirection = dir;
-      btn.closest(".direction-row").querySelectorAll("button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-      renderTranslateUI();
-    };
-
-    function renderTranslateUI() {
-      const ll = reviewLanguage === "zh" ? "Tiếng Trung" : "Tiếng Anh";
-      const tl = reviewLanguage === "zh" ? "Trung" : "Anh";
-      const sl = reviewLanguage === "zh" ? "tiếng Trung" : "tiếng Anh";
-      const t = document.getElementById("translateTitle");
-      const i = document.getElementById("translateInput");
-      const a = document.getElementById("translateAnswer");
-      const b = document.getElementById("translateBtn");
-      const tv = document.getElementById("toViBtn");
-      const fv = document.getElementById("fromViBtn");
-      if (!t) return;
-      t.innerText = "Luyện dịch đoạn - " + ll;
-      if (b) b.innerText = "AI chấm bản dịch " + ll;
-      if (tv) tv.innerText = tl + " → Việt";
-      if (fv) fv.innerText = "Việt → " + tl;
-      if (i) i.placeholder = translateDirection === "to_vi" ? "Nhập câu/đoạn " + sl + " cần dịch" : "Nhập câu/đoạn tiếng Việt cần dịch sang tiếng " + tl;
-      if (a) a.placeholder = translateDirection === "to_vi" ? "Nhập bản dịch tiếng Việt" : "Nhập bản dịch tiếng " + tl;
     }
 
-    /* ===== ADD VOCAB ===== */
-    window.addVocab = async function() {
-      if (!supabaseClient || !currentUser) return;
+    function setLanguage(lang, btn) {
+      currentLanguage = lang;
+      const parent = btn.closest(".tabs");
+      parent.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderLanguageList();
+    }
+
+    function setReviewLanguage(lang, btn) {
+      reviewLanguage = lang;
+      const parent = btn.closest(".tabs");
+      parent.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      flashIndex = 0;
+      flashFlipped = false;
+      renderFlashcard();
+      renderGrammarReview();
+      renderTranslateUI();
+    }
+
+    function setTranslateDirection(direction, btn) {
+      translateDirection = direction;
+      const parent = btn.closest(".direction-row");
+      parent.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderTranslateUI();
+    }
+
+    function renderTranslateUI() {
+      const langLabel = reviewLanguage === "zh" ? "Tiếng Trung" : "Tiếng Anh";
+      const targetLabel = reviewLanguage === "zh" ? "Trung" : "Anh";
+      const sourceLabel = reviewLanguage === "zh" ? "tiếng Trung" : "tiếng Anh";
+
+      const title = document.getElementById("translateTitle");
+      const input = document.getElementById("translateInput");
+      const answer = document.getElementById("translateAnswer");
+      const btn = document.getElementById("translateBtn");
+      const toViBtn = document.getElementById("toViBtn");
+      const fromViBtn = document.getElementById("fromViBtn");
+
+      if (!title || !input || !answer || !btn) return;
+
+      title.innerText = "Luyện dịch đoạn - " + langLabel;
+      btn.innerText = "AI chấm bản dịch " + langLabel;
+      if (toViBtn) toViBtn.innerText = targetLabel + " → Việt";
+      if (fromViBtn) fromViBtn.innerText = "Việt → " + targetLabel;
+
+      if (translateDirection === "to_vi") {
+        input.placeholder = "Nhập câu/đoạn " + sourceLabel + " cần dịch sang tiếng Việt";
+        answer.placeholder = "Nhập bản dịch tiếng Việt của anh";
+      } else {
+        input.placeholder = "Nhập câu/đoạn tiếng Việt cần dịch sang tiếng " + targetLabel;
+        answer.placeholder = "Nhập bản dịch tiếng " + targetLabel + " của anh";
+      }
+    }
+
+    async function addVocab() {
       const item = {
-        user_id: currentUser.id, language: currentLanguage, category: "manual",
+        user_id: currentUser.id,
+        language: currentLanguage,
+        category: "manual",
         term: document.getElementById("vocabTerm").value.trim(),
         pinyin: document.getElementById("vocabPinyin").value.trim(),
         meaning_vi: document.getElementById("vocabMeaning").value.trim(),
-        example: document.getElementById("vocabExample").value.trim(),
-        grammar_note: "", video_link: ""
+        example: document.getElementById("vocabExample").value.trim()
       };
-      if (!item.term || !item.meaning_vi) return alert("Nhập từ và nghĩa.");
-      const { error } = await supabaseClient.from("vocabulary_items").insert(item);
-      if (error) return alert("Lỗi: " + error.message);
-      ["vocabTerm","vocabPinyin","vocabMeaning","vocabExample"].forEach(id => document.getElementById(id).value = "");
-      await logActivity("add_vocab", "Thêm từ: " + item.term + " — " + item.meaning_vi, { language: currentLanguage, term: item.term });
-      await loadDataFromBackend();
-      alert("Đã lưu từ vựng.");
-    };
 
-    /* ===== ADD GRAMMAR ===== */
-    window.addGrammar = async function() {
-      if (!supabaseClient || !currentUser) return;
+      if (!item.term || !item.meaning_vi) return alert("Nhập từ và nghĩa trước nha anh.");
+
+      const { error } = await supabaseClient.from("vocabulary_items").insert(item);
+      if (error) return alert("Lưu từ vựng lỗi: " + error.message);
+
+      document.getElementById("vocabTerm").value = "";
+      document.getElementById("vocabPinyin").value = "";
+      document.getElementById("vocabMeaning").value = "";
+      document.getElementById("vocabExample").value = "";
+
+      await loadDataFromBackend();
+      alert("Đã lưu từ vựng vào backend.");
+    }
+
+    async function addGrammar() {
       const item = {
-        user_id: currentUser.id, language: currentLanguage,
+        user_id: currentUser.id,
+        language: currentLanguage,
         title: document.getElementById("grammarTitle").value.trim(),
         explanation: document.getElementById("grammarExplain").value.trim(),
         example: document.getElementById("grammarExample").value.trim()
       };
-      if (!item.title) return alert("Nhập tên ngữ pháp.");
-      const { error } = await supabaseClient.from("grammar_items").insert(item);
-      if (error) return alert("Lỗi: " + error.message);
-      ["grammarTitle","grammarExplain","grammarExample"].forEach(id => document.getElementById(id).value = "");
-      await logActivity("add_grammar", "Thêm ngữ pháp: " + item.title, { language: currentLanguage });
-      await loadDataFromBackend();
-      alert("Đã lưu ngữ pháp.");
-    };
 
-    /* ===== ADD PARAGRAPH (có title + translation_vi) ===== */
-    window.addParagraph = async function() {
-      if (!supabaseClient || !currentUser) return;
+      if (!item.title) return alert("Nhập tên ngữ pháp trước nha anh.");
+
+      const { error } = await supabaseClient.from("grammar_items").insert(item);
+      if (error) return alert("Lưu ngữ pháp lỗi: " + error.message);
+
+      document.getElementById("grammarTitle").value = "";
+      document.getElementById("grammarExplain").value = "";
+      document.getElementById("grammarExample").value = "";
+
+      await loadDataFromBackend();
+      alert("Đã lưu ngữ pháp vào backend.");
+    }
+
+    async function addParagraph() {
       const content = document.getElementById("paragraphText").value.trim();
       if (!content) return;
-      const title = content.slice(0, 60) + (content.length > 60 ? "..." : "");
-      const { error } = await supabaseClient.from("paragraph_items").insert({
-        user_id: currentUser.id, language: currentLanguage,
-        title: title, content: content, translation_vi: ""
-      });
-      if (error) return alert("Lỗi: " + error.message);
+
+      const { error } = await supabaseClient
+        .from("paragraph_items")
+        .insert({ user_id: currentUser.id, language: currentLanguage, content });
+
+      if (error) return alert("Lưu đoạn văn lỗi: " + error.message);
+
       document.getElementById("paragraphText").value = "";
-      await logActivity("add_paragraph", "Thêm đoạn văn (" + title + ")", { language: currentLanguage, length: content.length });
       await loadDataFromBackend();
       alert("Đã lưu đoạn văn.");
-    };
+    }
 
-    /* ===== ADD VIDEO (có note) ===== */
-    window.addVideo = async function() {
-      if (!supabaseClient || !currentUser) return;
+    async function addVideo() {
       const title = document.getElementById("videoTitle").value.trim();
       const url = document.getElementById("videoLink").value.trim();
+
       if (!title || !url) return;
-      const { error } = await supabaseClient.from("video_links").insert({
-        user_id: currentUser.id, language: currentLanguage, title: title, url: url, note: ""
-      });
-      if (error) return alert("Lỗi: " + error.message);
+
+      const { error } = await supabaseClient
+        .from("video_links")
+        .insert({ user_id: currentUser.id, language: currentLanguage, title, url });
+
+      if (error) return alert("Lưu video lỗi: " + error.message);
+
       document.getElementById("videoTitle").value = "";
       document.getElementById("videoLink").value = "";
-      await logActivity("add_video", "Thêm video: " + title, { url: url });
       await loadDataFromBackend();
       alert("Đã lưu video.");
-    };
+    }
 
-    /* ===== EXCEL IMPORT ===== */
-    window.previewExcel = async function() {
+    async function previewExcel() {
       const file = document.getElementById("excelFile").files[0];
-      if (!file) return alert("Chọn file Excel.");
-      try {
-        const data = await file.arrayBuffer();
-        const wb = XLSX.read(data);
-        const sheet = wb.Sheets[wb.SheetNames[0]];
-        previewRows = XLSX.utils.sheet_to_json(sheet);
-        if (!previewRows.length) { document.getElementById("excelPreview").innerHTML = "<p>File rỗng.</p>"; return; }
-        console.log("📋 Headers:", Object.keys(previewRows[0]));
-        const h = Object.keys(previewRows[0]);
-        const rows = previewRows.slice(0, 10).map(r => "<tr>" + h.map(c => `<td>${r[c]??""}</td>`).join("") + "</tr>").join("");
-        document.getElementById("excelPreview").innerHTML = `<p class="muted">Preview ${previewRows.length} dòng (max 10)</p><table><thead><tr>${h.map(c=>`<th>${c}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>`;
-      } catch (e) { alert("Lỗi đọc Excel: " + e.message); }
-    };
+      if (!file) return alert("Chọn file Excel trước nha anh.");
 
-    window.saveExcelRows = async function() {
-      if (!supabaseClient || !currentUser) return alert("Chưa đăng nhập.");
-      if (!previewRows.length) return alert("Chưa preview.");
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const sheet = workbook.Sheets[workbook.SheetNames[0]];
+      previewRows = XLSX.utils.sheet_to_json(sheet);
 
-      const mapped = previewRows.map(row => {
-        const term = pick(row, "Từ tiếng trung","Tự tiếng trung","Từ tiếng Trung","Tự tiếng Trung","từ tiếng trung","tự tiếng trung","Từ","Tự","từ","tự","Hán tự","hán tự","term","hanzi","word","Word","chinese");
-        const meaning_vi = pick(row, "Nghĩa tiếng Việt","Nghĩa tiếng Việt ","nghĩa tiếng việt","Nghĩa","nghĩa","Ý nghĩa","ý nghĩa","meaning_vi","meaning","vi","Vietnamese","vietnamese");
-        const pinyin = pick(row, "Pinyin","pinyin","Pinyin ","pinyin ","Phát âm","phát âm","Pronunciation","pronunciation");
-        const example = pick(row, "Ví dụ","ví dụ","Ví dụ ","ví dụ ","Ví_dụ","ví_dụ","Example","example");
-        const word_type = pick(row, "Loại từ","loại từ","Từ loại","từ loại","Động từ","Danh từ","Tính từ","Part of speech","pos","word_type","type");
-        const hsk = pick(row, "HSK","hsk","Hsk","HSK ","hsk ","Level","level","Cấp độ","cấp độ");
-        const language = pick(row, "language","Language","ngôn ngữ","Ngôn ngữ") || currentLanguage;
-        const category = hsk ? ("HSK " + hsk) : (pick(row, "category","Category","loại","Loại") || "excel");
-        let fm = meaning_vi;
-        if (word_type && fm && !fm.includes(word_type)) fm = word_type + " — " + fm;
-        else if (word_type && !fm) fm = word_type;
-        return { user_id: currentUser.id, language, category, term, pinyin, meaning_vi: fm, example, grammar_note: "", video_link: "" };
-      }).filter(x => x.term && x.meaning_vi);
-
-      console.log("✅ mapped:", mapped.length, "dòng");
-      if (mapped.length > 0) console.log("📋 Mẫu:", JSON.stringify(mapped[0]));
-      if (!mapped.length) {
-        console.warn("❌ Headers:", Object.keys(previewRows[0]));
-        console.warn("❌ Raw:", JSON.stringify(previewRows[0]));
-        return alert("Không map được dòng nào.\nHeaders: " + Object.keys(previewRows[0]).join(", "));
+      if (!previewRows.length) {
+        document.getElementById("excelPreview").innerHTML = "<p>File không có dữ liệu.</p>";
+        return;
       }
 
-      try {
-        const { error } = await supabaseClient.from("vocabulary_items").insert(mapped);
-        if (error) { console.error("❌", error); return alert("Lỗi:\n" + (error.message||"") + (error.hint?"\n"+error.hint:"") + (error.details?"\n"+error.details:"")); }
-        await logActivity("import_excel", "Import " + mapped.length + " dòng", { total: previewRows.length, valid: mapped.length });
-        previewRows = [];
-        document.getElementById("excelPreview").innerHTML = "";
-        document.getElementById("excelFile").value = "";
-        await loadDataFromBackend();
-        alert("Đã lưu " + mapped.length + " dòng.");
-      } catch (e) { alert("Lỗi: " + e.message); }
-    };
+      const headers = Object.keys(previewRows[0]);
+      const rowsHtml = previewRows.slice(0, 10).map(row => {
+        return "<tr>" + headers.map(h => `<td>${row[h] || ""}</td>`).join("") + "</tr>";
+      }).join("");
 
-    /* ===== ADD WORK (có note) ===== */
-    window.addWork = async function() {
-      if (!supabaseClient || !currentUser) return;
+      document.getElementById("excelPreview").innerHTML = `
+        <p class="muted">Preview ${previewRows.length} dòng. Đang hiển thị tối đa 10 dòng đầu.</p>
+        <table>
+          <thead><tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr></thead>
+          <tbody>${rowsHtml}</tbody>
+        </table>
+      `;
+    }
+
+    async function saveExcelRows() {
+      if (!previewRows.length) return alert("Chưa có dữ liệu preview để lưu.");
+
+      const mapped = previewRows.map(row => ({
+        user_id: currentUser.id,
+        language: row.language || row.Language || currentLanguage,
+        category: row.category || row.Category || "excel",
+        term: row.term || row.hanzi || row.word || row.Word || "",
+        pinyin: row.pinyin || "",
+        meaning_vi: row.meaning_vi || row.meaning || row.vi || "",
+        example: row.example || "",
+        grammar_note: row.grammar_note || "",
+        video_link: row.video_link || ""
+      })).filter(x => x.term && x.meaning_vi);
+
+      if (!mapped.length) return alert("Không có dòng hợp lệ.");
+
+      const { error } = await supabaseClient.from("vocabulary_items").insert(mapped);
+      if (error) return alert("Import lỗi: " + error.message);
+
+      previewRows = [];
+      document.getElementById("excelPreview").innerHTML = "";
+      document.getElementById("excelFile").value = "";
+
+      await loadDataFromBackend();
+      alert("Đã lưu " + mapped.length + " dòng từ Excel vào backend.");
+    }
+
+    async function addWork() {
       const item = {
         user_id: currentUser.id,
         title: document.getElementById("workName").value.trim(),
         process: document.getElementById("workProcess").value.trim(),
-        faq: document.getElementById("workFAQ").value.trim(),
-        note: ""
+        faq: document.getElementById("workFAQ").value.trim()
       };
-      if (!item.title) return alert("Nhập tên nghiệp vụ.");
+
+      if (!item.title) return alert("Nhập tên nghiệp vụ trước nha anh.");
+
       const { error } = await supabaseClient.from("work_processes").insert(item);
-      if (error) return alert("Lỗi: " + error.message);
-      ["workName","workProcess","workFAQ"].forEach(id => document.getElementById(id).value = "");
-      await logActivity("add_work", "Thêm nghiệp vụ: " + item.title);
+      if (error) return alert("Lưu nghiệp vụ lỗi: " + error.message);
+
+      document.getElementById("workName").value = "";
+      document.getElementById("workProcess").value = "";
+      document.getElementById("workFAQ").value = "";
+
       await loadDataFromBackend();
       alert("Đã lưu nghiệp vụ.");
-    };
+    }
 
-    /* ===== CREATE USER (ADMIN) ===== */
-    window.createMockUser = async function() {
-      if (!supabaseClient) return;
+    async function createMockUser() {
       const email = document.getElementById("newUserName").value.trim();
       const password = document.getElementById("newUserPassword").value.trim();
       const full_name = document.getElementById("newFullName").value.trim();
       const role = document.getElementById("newRole").value;
-      if (!email || !password || !full_name) return alert("Điền đủ thông tin.");
-      const { data, error } = await supabaseClient.functions.invoke("create-user", { body: { email, password, full_name, role } });
-      if (error || !data?.success) return alert("Lỗi: " + (error?.message || data?.error || "Không rõ"));
-      ["newUserName","newUserPassword","newFullName"].forEach(id => document.getElementById(id).value = "");
-      await logActivity("create_user", "Tạo user: " + full_name + " (" + email + ")", { email, role });
-      await loadUsersForAdmin(); renderUsers();
-      alert("Đã tạo account.");
-    };
 
-    window.toggleUser = function() { alert("Chức năng khóa/mở user sẽ làm sau."); };
-
-    /* ===== MOCK AI + GHI REVIEW_LOG ===== */
-    window.mockAI = async function(type) {
-      const responses = {
-        translate: "AI mock - Chấm dịch " + (reviewLanguage==="zh"?"tiếng Trung":"tiếng Anh") + "\n- Kiểm tra: đúng nghĩa, tự nhiên, ngữ pháp, sắc thái.\n- Sau này sẽ gọi API AI thật.",
-        sentence: "AI mock:\n- Sửa lỗi từ vựng/ngữ pháp.\n- Đưa 2 câu tự nhiên hơn.",
-        work: "AI mock:\n- Gợi ý hướng xử lý case theo nghiệp vụ đã chọn.\n- Sau này dùng MCP để truy xuất data thật."
-      };
-      const target = type === "translate" ? "translateAI" : type === "sentence" ? "sentenceAI" : "workAI";
-      const el = document.getElementById(target);
-      el.classList.remove("hidden");
-      el.innerText = responses[type];
-
-      // Ghi vào review_logs
-      let inputText = "", userAnswer = "";
-      if (type === "translate") {
-        inputText = document.getElementById("translateInput")?.value || "";
-        userAnswer = document.getElementById("translateAnswer")?.value || "";
-      } else if (type === "sentence") {
-        inputText = document.getElementById("sentenceWord")?.value || "";
-        userAnswer = document.getElementById("sentenceInput")?.value || "";
-      } else if (type === "work") {
-        inputText = document.getElementById("workSelect")?.value || "";
-        userAnswer = document.getElementById("workQuestion")?.value || "";
+      if (!email || !password || !full_name) {
+        alert("Điền đủ email, password và tên hiển thị nha anh.");
+        return;
       }
 
-      try {
-        await supabaseClient.from("review_logs").insert({
-          user_id: currentUser.id,
-          activity_type: type,
-          language: reviewLanguage,
-          input_text: inputText,
-          user_answer: userAnswer,
-          ai_feedback: responses[type],
-          score: null
-        });
-      } catch (e) { console.warn("Ghi review_log lỗi:", e.message); }
-    };
+      const { data, error } = await supabaseClient.functions.invoke("create-user", {
+        body: { email, password, full_name, role }
+      });
 
-    /* ===== ACTIVITY LOG ===== */
-    let activityLogs = [];
-    const ACTION_LABELS = {
-      login:"🔐 Đăng nhập", logout:"🚪 Đăng xuất", add_vocab:"📝 Thêm từ vựng",
-      add_grammar:"📖 Thêm ngữ pháp", add_paragraph:"📄 Thêm đoạn văn",
-      add_video:"🎬 Thêm video", import_excel:"📊 Import Excel",
-      add_work:"💼 Thêm nghiệp vụ", create_user:"👤 Tạo user"
-    };
-    function formatTime(s) { if(!s)return""; const d=new Date(s); const p=n=>String(n).padStart(2,"0"); return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+      if (error || !data?.success) {
+        alert("Tạo account lỗi: " + (error?.message || data?.error || "Không rõ lỗi"));
+        return;
+      }
 
-    async function logActivity(action, detail, meta) {
-      if (!supabaseClient || !currentUser) return;
-      try { await supabaseClient.from("activity_logs").insert({ user_id: currentUser.id, action, detail: detail||"", meta: meta||{} }); }
-      catch(e) { console.warn("logActivity:", e.message); }
+      document.getElementById("newUserName").value = "";
+      document.getElementById("newUserPassword").value = "";
+      document.getElementById("newFullName").value = "";
+
+      await loadUsersForAdmin();
+      renderUsers();
+      alert("Đã tạo account thật.");
     }
 
-    async function loadActivityLogs() {
-      if (!supabaseClient || !currentUser) return;
-      try {
-        const isAdmin = currentProfile?.role === "admin";
-        let q = supabaseClient.from("activity_logs").select("*").order("created_at",{ascending:false}).limit(200);
-        if (!isAdmin) q = q.eq("user_id", currentUser.id);
-        const { data, error } = await q;
-        activityLogs = error ? [] : (data||[]);
-      } catch(e) { activityLogs=[]; }
+    function toggleUser(username) {
+      alert("Chức năng khóa/mở user sẽ làm ở bước sau bằng Edge Function riêng.");
     }
 
-    function renderHistory() {
-      const box = document.getElementById("historyList");
-      if (!box) return;
-      const f = document.getElementById("historyFilter")?.value || "all";
-      let list = f === "all" ? activityLogs : activityLogs.filter(l => l.action === f);
-      if (!list.length) { box.innerHTML = `<p class="muted">${f!=="all"?"Không có thao tác khớp filter.":"Chưa có lịch sử."}</p>`; return; }
-      const isAdmin = currentProfile?.role === "admin";
-      box.innerHTML = list.map(l => {
-        const label = ACTION_LABELS[l.action] || l.action;
-        const meta = l.meta && Object.keys(l.meta).length ? `<span class="muted" style="font-size:12px">${Object.entries(l.meta).map(([k,v])=>k+": "+v).join(" | ")}</span>` : "";
-        const tag = isAdmin && l.user_id !== currentUser?.id ? `<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:6px;font-size:11px;margin-left:6px">${(l.meta?.email||l.user_id).slice(0,20)}</span>` : "";
-        return `<div class="item" style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px"><div style="flex:1"><div class="item-title">${label}${tag}</div><div style="font-size:14px">${l.detail||""}</div>${meta}</div><span class="muted" style="font-size:12px;white-space:nowrap">${formatTime(l.created_at)}</span></div>`;
-      }).join("");
-    }
-
-    window.clearHistoryUI = function() { document.getElementById("historyFilter").value = "all"; renderHistory(); };
-    window.clearMyHistory = async function() {
-      if (!confirm("Xóa toàn bộ lịch sử?")) return;
-      const { error } = await supabaseClient.from("activity_logs").delete().eq("user_id", currentUser.id);
-      if (error) return alert("Lỗi: " + error.message);
-      await loadActivityLogs(); renderHistory(); alert("Đã xóa.");
-    };
-
-    /* ===== RENDER ALL ===== */
     function renderAll() {
-      renderStats(); renderLanguageList(); renderFlashcard();
-      renderGrammarReview(); renderTranslateUI(); renderWork(); renderUsers();
+      renderStats();
+      renderLanguageList();
+      renderFlashcard();
+      renderGrammarReview();
+      renderTranslateUI();
+      renderWork();
+      renderUsers();
     }
 
     function renderStats() {
@@ -1107,74 +1083,152 @@
 
     function renderLanguageList() {
       const list = document.getElementById("languageList");
-      const mv = vocab.filter(x=>owner(x)&&x.language===currentLanguage);
-      const mg = grammar.filter(x=>owner(x)&&x.language===currentLanguage);
-      const mp = paragraphs.filter(x=>owner(x)&&x.language===currentLanguage);
-      const mvi = videos.filter(x=>owner(x)&&x.language===currentLanguage);
+      const myVocab = vocab.filter(x => owner(x) && x.language === currentLanguage);
+      const myGrammar = grammar.filter(x => owner(x) && x.language === currentLanguage);
+      const myParagraphs = paragraphs.filter(x => owner(x) && x.language === currentLanguage);
+      const myVideos = videos.filter(x => owner(x) && x.language === currentLanguage);
+
       list.innerHTML = `
-        <div class="item"><div class="item-title">Từ vựng (${mv.length})</div>${mv.slice(0,5).map(x=>`${x.term} — ${x.meaning_vi}`).join("<br>")||"Chưa có"}</div>
-        <div class="item"><div class="item-title">Ngữ pháp (${mg.length})</div>${mg.slice(0,5).map(x=>x.title).join("<br>")||"Chưa có"}</div>
-        <div class="item"><div class="item-title">Đoạn văn (${mp.length})</div>${mp.slice(0,3).map(x=>`<b>${x.title||""}</b><br>${(x.content||"").slice(0,100)}...`).join("<br>")||"Chưa có"}</div>
-        <div class="item"><div class="item-title">Video (${mvi.length})</div>${mvi.slice(0,5).map(x=>`<a href="${x.url}" target="_blank">${x.title}</a>`).join("<br>")||"Chưa có"}</div>`;
+        <div class="item"><div class="item-title">Từ vựng (${myVocab.length})</div>${myVocab.slice(0, 5).map(x => `${x.term} - ${x.meaning_vi}`).join("<br>") || "Chưa có"}</div>
+        <div class="item"><div class="item-title">Ngữ pháp (${myGrammar.length})</div>${myGrammar.slice(0, 5).map(x => x.title).join("<br>") || "Chưa có"}</div>
+        <div class="item"><div class="item-title">Đoạn văn (${myParagraphs.length})</div>${myParagraphs.slice(0, 3).map(x => (x.content || "").slice(0, 120) + "...").join("<br>") || "Chưa có"}</div>
+        <div class="item"><div class="item-title">Video (${myVideos.length})</div>${myVideos.slice(0, 5).map(x => `<a href="${x.url}" target="_blank">${x.title}</a>`).join("<br>") || "Chưa có"}</div>
+      `;
     }
 
     function renderFlashcard() {
       const card = document.getElementById("flashcard");
-      const mv = vocab.filter(x=>owner(x)&&x.language===reviewLanguage);
-      const ll = reviewLanguage==="zh"?"Tiếng Trung":"Tiếng Anh";
-      document.getElementById("flashcardTitle").innerText = "Flashcard — " + ll;
-      if (!mv.length) { card.innerText = "Chưa có từ để ôn " + ll; return; }
-      if (flashIndex >= mv.length) flashIndex = 0;
-      const item = mv[flashIndex];
-      card.innerText = !flashFlipped ? item.term : (item.meaning_vi||"");
-      if (flashFlipped) card.innerHTML += `<small>${item.pinyin||""}</small><small>${item.example||""}</small>`;
+      const myVocab = vocab.filter(x => owner(x) && x.language === reviewLanguage);
+      const langLabel = reviewLanguage === "zh" ? "Tiếng Trung" : "Tiếng Anh";
+      document.getElementById("flashcardTitle").innerText = "Flashcard từ vựng - " + langLabel;
+
+      if (!myVocab.length) {
+        card.innerText = "Chưa có từ để ôn " + langLabel;
+        return;
+      }
+
+      if (flashIndex >= myVocab.length) flashIndex = 0;
+      const item = myVocab[flashIndex];
+
+      if (!flashFlipped) {
+        card.innerText = item.term;
+      } else {
+        card.innerHTML = `${item.meaning_vi || ""}<small>${item.pinyin || ""}</small><small>${item.example || ""}</small>`;
+      }
     }
 
-    window.flipCard = function() { flashFlipped = !flashFlipped; renderFlashcard(); };
-    window.nextCard = function() {
-      const mv = vocab.filter(x=>owner(x)&&x.language===reviewLanguage);
-      if (!mv.length) return;
-      flashIndex = (flashIndex+1) % mv.length; flashFlipped = false; renderFlashcard();
-    };
+    function flipCard() {
+      flashFlipped = !flashFlipped;
+      renderFlashcard();
+    }
+
+    function nextCard() {
+      const myVocab = vocab.filter(x => owner(x) && x.language === reviewLanguage);
+      if (!myVocab.length) return;
+      flashIndex = (flashIndex + 1) % myVocab.length;
+      flashFlipped = false;
+      renderFlashcard();
+    }
 
     function renderGrammarReview() {
       const box = document.getElementById("grammarReviewList");
-      const mg = grammar.filter(x=>owner(x)&&x.language===reviewLanguage);
-      const ll = reviewLanguage==="zh"?"Tiếng Trung":"Tiếng Anh";
-      document.getElementById("grammarReviewTitle").innerText = "Ôn ngữ pháp — " + ll;
-      box.innerHTML = mg.length ? mg.map(g=>`<div class="item"><div class="item-title">${g.title}</div>${g.explanation||""}<br><span class="muted">${g.example||""}</span></div>`).join("") : "<p class='muted'>Chưa có.</p>";
+      const myGrammar = grammar.filter(x => owner(x) && x.language === reviewLanguage);
+      const langLabel = reviewLanguage === "zh" ? "Tiếng Trung" : "Tiếng Anh";
+      document.getElementById("grammarReviewTitle").innerText = "Ôn ngữ pháp - " + langLabel;
+
+      box.innerHTML = myGrammar.length
+        ? myGrammar.map(g => `<div class="item"><div class="item-title">${g.title}</div>${g.explanation || ""}<br><span class="muted">${g.example || ""}</span></div>`).join("")
+        : "<p class='muted'>Chưa có ngữ pháp để ôn.</p>";
     }
 
     function renderWork() {
       const list = document.getElementById("workList");
-      const sel = document.getElementById("workSelect");
-      const mw = works.filter(owner);
-      list.innerHTML = mw.length ? mw.map(w=>`<div class="item"><div class="item-title">${w.title}</div><b>Quy trình:</b><br>${w.process||"Chưa có"}<br><br><b>FAQ:</b><br>${w.faq||"Chưa có"}${w.note?"<br><br><b>Ghi chú:</b> "+w.note:""}</div>`).join("") : "<p class='muted'>Chưa có.</p>";
-      sel.innerHTML = mw.length ? mw.map(w=>`<option value="${w.title}">${w.title}</option>`).join("") : "<option>Chưa có</option>";
+      const select = document.getElementById("workSelect");
+      const myWorks = works.filter(owner);
+
+      list.innerHTML = myWorks.length
+        ? myWorks.map(w => `<div class="item"><div class="item-title">${w.title}</div><b>Quy trình:</b><br>${w.process || "Chưa có"}<br><br><b>FAQ:</b><br>${w.faq || "Chưa có"}</div>`).join("")
+        : "<p class='muted'>Chưa có nghiệp vụ.</p>";
+
+      select.innerHTML = myWorks.length
+        ? myWorks.map(w => `<option value="${w.title}">${w.title}</option>`).join("")
+        : "<option>Chưa có nghiệp vụ</option>";
     }
 
     function renderUsers() {
       const box = document.getElementById("userList");
       if (!box) return;
-      if (currentProfile?.role !== "admin") { box.innerHTML = "<p class='muted'>Không có quyền.</p>"; return; }
-      box.innerHTML = `<table><thead><tr><th>ID</th><th>Tên</th><th>Role</th><th>Trạng thái</th><th>Action</th></tr></thead><tbody>${users.map(u=>`<tr><td>${u.id}</td><td>${u.full_name||""}</td><td>${u.role||"user"}</td><td>Active</td><td><button onclick="toggleUser('${u.id}')">Khóa/Mở</button></td></tr>`).join("")}</tbody></table>`;
+
+      if (currentProfile?.role !== "admin") {
+        box.innerHTML = "<p class='muted'>Không có quyền xem danh sách user.</p>";
+        return;
+      }
+
+      box.innerHTML = `
+        <table>
+          <thead>
+            <tr><th>User ID</th><th>Tên</th><th>Role</th><th>Trạng thái</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            ${users.map(u => `
+              <tr>
+                <td>${u.id}</td>
+                <td>${u.full_name || ""}</td>
+                <td>${u.role || "user"}</td>
+                <td>Active</td>
+                <td><button onclick="toggleUser('${u.id}')">Khóa/Mở</button></td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      `;
     }
 
-    /* ===== ON LOAD ===== */
+    function buildTranslateFeedback() {
+      const langLabel = reviewLanguage === "zh" ? "tiếng Trung" : "tiếng Anh";
+      const directionLabel = translateDirection === "to_vi"
+        ? (reviewLanguage === "zh" ? "Trung → Việt" : "Anh → Việt")
+        : (reviewLanguage === "zh" ? "Việt → Trung" : "Việt → Anh");
+
+      return "AI mock - Chấm dịch " + langLabel + "
+"
+        + "- Chiều dịch: " + directionLabel + "
+"
+        + "- Em sẽ kiểm tra: đúng nghĩa, tự nhiên, ngữ pháp, sắc thái câu.
+"
+        + "- Nếu là tiếng Trung: chấm thêm trật tự từ, lượng từ, hư từ và cách dùng ngữ pháp.
+"
+        + "- Nếu là tiếng Anh: chấm thêm tense, collocation, word choice và natural expression.
+"
+        + "- Sau này chỗ này sẽ gọi API AI thật theo đúng ngôn ngữ đang chọn.";
+    }
+
+    function mockAI(type) {
+      const responses = {
+        translate: buildTranslateFeedback(),
+        sentence: "AI mock:
+- Câu của anh sẽ được sửa lỗi từ vựng/ngữ pháp.
+- AI sẽ đưa thêm 2 câu tự nhiên hơn để anh học.",
+        work: "AI mock:
+- Em sẽ đọc nghiệp vụ đang chọn và gợi ý hướng xử lý case.
+- Sau này dùng API/MCP để AI truy xuất dữ liệu nghiệp vụ thật."
+      };
+
+      const target = type === "translate" ? "translateAI" : type === "sentence" ? "sentenceAI" : "workAI";
+      document.getElementById(target).classList.remove("hidden");
+      document.getElementById(target).innerText = responses[type];
+    }
+
     window.onload = async function() {
-      if (!supabaseClient) return;
-      try {
-        const { data, error } = await supabaseClient.auth.getSession();
-        if (error) { console.warn("getSession:", error.message); return; }
-        if (data.session?.user) {
-          currentUser = data.session.user;
-          await loadProfile();
-          await loadDataFromBackend();
-          showApp();
-        }
-      } catch(e) { console.error("onload:", e); }
+      const { data } = await supabaseClient.auth.getSession();
+
+      if (data.session?.user) {
+        currentUser = data.session.user;
+        await loadProfile();
+        await loadDataFromBackend();
+        showApp();
+      }
     };
   </script>
-  
 </body>
 </html>
