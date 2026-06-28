@@ -691,7 +691,7 @@
       return item.user_id === currentUser?.id;
     }
 
-    async function login() {
+    window.login = async function login() {
       const email = document.getElementById("loginUsername").value.trim();
       const password = document.getElementById("loginPassword").value.trim();
 
