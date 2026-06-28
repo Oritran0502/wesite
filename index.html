@@ -700,7 +700,10 @@
         return;
       }
 
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email,
+        password
+      });
 
       if (error) {
         alert("Đăng nhập lỗi: " + error.message);
@@ -711,15 +714,15 @@
       await loadProfile();
       await loadDataFromBackend();
       showApp();
-    }
+    };
 
-    async function logout() {
+    window.logout = async function logout() {
       await supabaseClient.auth.signOut();
       currentUser = null;
       currentProfile = null;
       document.getElementById("app").classList.add("hidden");
       document.getElementById("loginPage").classList.remove("hidden");
-    }
+    };
 
     async function loadProfile() {
       const { data, error } = await supabaseClient
@@ -803,7 +806,7 @@
       renderAll();
     }
 
-    function showSection(id, btn) {
+    window.showSection = function showSection(id, btn) {
       if (id === "admin" && currentProfile?.role !== "admin") {
         alert("Tài khoản user không có quyền vào Admin.");
         return;
@@ -816,17 +819,17 @@
       btn.classList.add("active");
 
       renderAll();
-    }
+    };
 
-    function setLanguage(lang, btn) {
+    window.setLanguage = function setLanguage(lang, btn) {
       currentLanguage = lang;
       const parent = btn.closest(".tabs");
       parent.querySelectorAll("button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       renderLanguageList();
-    }
+    };
 
-    function setReviewLanguage(lang, btn) {
+    window.setReviewLanguage = function setReviewLanguage(lang, btn) {
       reviewLanguage = lang;
       const parent = btn.closest(".tabs");
       parent.querySelectorAll("button").forEach(b => b.classList.remove("active"));
@@ -836,15 +839,15 @@
       renderFlashcard();
       renderGrammarReview();
       renderTranslateUI();
-    }
+    };
 
-    function setTranslateDirection(direction, btn) {
+    window.setTranslateDirection = function setTranslateDirection(direction, btn) {
       translateDirection = direction;
       const parent = btn.closest(".direction-row");
       parent.querySelectorAll("button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       renderTranslateUI();
-    }
+    };
 
     function renderTranslateUI() {
       const langLabel = reviewLanguage === "zh" ? "Tiếng Trung" : "Tiếng Anh";
@@ -874,7 +877,7 @@
       }
     }
 
-    async function addVocab() {
+    window.addVocab = async function addVocab() {
       const item = {
         user_id: currentUser.id,
         language: currentLanguage,
@@ -897,9 +900,9 @@
 
       await loadDataFromBackend();
       alert("Đã lưu từ vựng vào backend.");
-    }
+    };
 
-    async function addGrammar() {
+    window.addGrammar = async function addGrammar() {
       const item = {
         user_id: currentUser.id,
         language: currentLanguage,
@@ -919,9 +922,9 @@
 
       await loadDataFromBackend();
       alert("Đã lưu ngữ pháp vào backend.");
-    }
+    };
 
-    async function addParagraph() {
+    window.addParagraph = async function addParagraph() {
       const content = document.getElementById("paragraphText").value.trim();
       if (!content) return;
 
@@ -934,9 +937,9 @@
       document.getElementById("paragraphText").value = "";
       await loadDataFromBackend();
       alert("Đã lưu đoạn văn.");
-    }
+    };
 
-    async function addVideo() {
+    window.addVideo = async function addVideo() {
       const title = document.getElementById("videoTitle").value.trim();
       const url = document.getElementById("videoLink").value.trim();
 
@@ -952,9 +955,9 @@
       document.getElementById("videoLink").value = "";
       await loadDataFromBackend();
       alert("Đã lưu video.");
-    }
+    };
 
-    async function previewExcel() {
+    window.previewExcel = async function previewExcel() {
       const file = document.getElementById("excelFile").files[0];
       if (!file) return alert("Chọn file Excel trước nha anh.");
 
@@ -980,9 +983,9 @@
           <tbody>${rowsHtml}</tbody>
         </table>
       `;
-    }
+    };
 
-    async function saveExcelRows() {
+    window.saveExcelRows = async function saveExcelRows() {
       if (!previewRows.length) return alert("Chưa có dữ liệu preview để lưu.");
 
       const mapped = previewRows.map(row => ({
@@ -1008,9 +1011,9 @@
 
       await loadDataFromBackend();
       alert("Đã lưu " + mapped.length + " dòng từ Excel vào backend.");
-    }
+    };
 
-    async function addWork() {
+    window.addWork = async function addWork() {
       const item = {
         user_id: currentUser.id,
         title: document.getElementById("workName").value.trim(),
@@ -1029,9 +1032,9 @@
 
       await loadDataFromBackend();
       alert("Đã lưu nghiệp vụ.");
-    }
+    };
 
-    async function createMockUser() {
+    window.createMockUser = async function createMockUser() {
       const email = document.getElementById("newUserName").value.trim();
       const password = document.getElementById("newUserPassword").value.trim();
       const full_name = document.getElementById("newFullName").value.trim();
@@ -1058,11 +1061,11 @@
       await loadUsersForAdmin();
       renderUsers();
       alert("Đã tạo account thật.");
-    }
+    };
 
-    function toggleUser(username) {
+    window.toggleUser = function toggleUser(username) {
       alert("Chức năng khóa/mở user sẽ làm ở bước sau bằng Edge Function riêng.");
-    }
+    };
 
     function renderAll() {
       renderStats();
@@ -1116,18 +1119,18 @@
       }
     }
 
-    function flipCard() {
+    window.flipCard = function flipCard() {
       flashFlipped = !flashFlipped;
       renderFlashcard();
-    }
+    };
 
-    function nextCard() {
+    window.nextCard = function nextCard() {
       const myVocab = vocab.filter(x => owner(x) && x.language === reviewLanguage);
       if (!myVocab.length) return;
       flashIndex = (flashIndex + 1) % myVocab.length;
       flashFlipped = false;
       renderFlashcard();
-    }
+    };
 
     function renderGrammarReview() {
       const box = document.getElementById("grammarReviewList");
@@ -1189,34 +1192,25 @@
         ? (reviewLanguage === "zh" ? "Trung → Việt" : "Anh → Việt")
         : (reviewLanguage === "zh" ? "Việt → Trung" : "Việt → Anh");
 
-      return "AI mock - Chấm dịch " + langLabel + "
-"
-        + "- Chiều dịch: " + directionLabel + "
-"
-        + "- Em sẽ kiểm tra: đúng nghĩa, tự nhiên, ngữ pháp, sắc thái câu.
-"
-        + "- Nếu là tiếng Trung: chấm thêm trật tự từ, lượng từ, hư từ và cách dùng ngữ pháp.
-"
-        + "- Nếu là tiếng Anh: chấm thêm tense, collocation, word choice và natural expression.
-"
+      return "AI mock - Chấm dịch " + langLabel + "\n"
+        + "- Chiều dịch: " + directionLabel + "\n"
+        + "- Em sẽ kiểm tra: đúng nghĩa, tự nhiên, ngữ pháp, sắc thái câu.\n"
+        + "- Nếu là tiếng Trung: chấm thêm trật tự từ, lượng từ, hư từ và cách dùng ngữ pháp.\n"
+        + "- Nếu là tiếng Anh: chấm thêm tense, collocation, word choice và natural expression.\n"
         + "- Sau này chỗ này sẽ gọi API AI thật theo đúng ngôn ngữ đang chọn.";
     }
 
-    function mockAI(type) {
+    window.mockAI = function mockAI(type) {
       const responses = {
         translate: buildTranslateFeedback(),
-        sentence: "AI mock:
-- Câu của anh sẽ được sửa lỗi từ vựng/ngữ pháp.
-- AI sẽ đưa thêm 2 câu tự nhiên hơn để anh học.",
-        work: "AI mock:
-- Em sẽ đọc nghiệp vụ đang chọn và gợi ý hướng xử lý case.
-- Sau này dùng API/MCP để AI truy xuất dữ liệu nghiệp vụ thật."
+        sentence: "AI mock:\n- Câu của anh sẽ được sửa lỗi từ vựng/ngữ pháp.\n- AI sẽ đưa thêm 2 câu tự nhiên hơn để anh học.",
+        work: "AI mock:\n- Em sẽ đọc nghiệp vụ đang chọn và gợi ý hướng xử lý case.\n- Sau này dùng API/MCP để AI truy xuất dữ liệu nghiệp vụ thật."
       };
 
       const target = type === "translate" ? "translateAI" : type === "sentence" ? "sentenceAI" : "workAI";
       document.getElementById(target).classList.remove("hidden");
       document.getElementById(target).innerText = responses[type];
-    }
+    };
 
     window.onload = async function() {
       const { data } = await supabaseClient.auth.getSession();
