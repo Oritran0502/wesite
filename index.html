@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -463,7 +464,6 @@
         <button onclick="showSection('import', this)">Import Excel</button>
         <button onclick="showSection('review', this)">Ôn lại kiến thức</button>
         <button onclick="showSection('work', this)">Nghiệp vụ công việc</button>
-        <button id="adminNavBtn" onclick="showSection('admin', this)">Admin</button>
       </div>
 
       <button class="logout" onclick="logout()">Đăng xuất</button>
@@ -634,42 +634,15 @@
         </div>
       </section>
 
-      <section id="admin" class="section">
-        <div class="grid two">
-          <div class="card">
-            <h3>Tạo tài khoản</h3>
-            <input id="newUserName" placeholder="Email" />
-            <input id="newUserPassword" placeholder="Password" />
-            <input id="newFullName" placeholder="Tên hiển thị" />
-            <select id="newRole">
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
-            <button onclick="createMockUser()">Tạo account</button>
-          </div>
-
-          <div class="card">
-            <h3>Ghi chú backend sau này</h3>
-            <p class="muted">
-              Phần này sau sẽ thay bằng Supabase Auth/Admin API để tạo account thật,
-              phân quyền và quản lý dữ liệu từng user.
-            </p>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Danh sách user</h3>
-          <div id="userList"></div>
-        </div>
-      </section>
     </section>
   </main>
 
   <script>
     const SUPABASE_URL = "https://tiangjltikmvznuosxqn.supabase.co";
-    const SUPABASE_KEY = "sb_publishable_zPJQhb6g8wUzWwvY2iWDqg_hdZVrjWY";
+    // Dán anon public key trong Supabase > Project Settings > API > anon/public vào đây.
+    const SUPABASE_ANON_KEY = "PASTE_SUPABASE_ANON_PUBLIC_KEY_HERE";
 
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
     let currentProfile = null;
@@ -686,7 +659,6 @@
     let paragraphs = [];
     let videos = [];
     let works = [];
-    let users = [];
 
     function owner(item) {
       return item.user_id === currentUser?.id;
@@ -730,22 +702,8 @@
         .single();
 
       currentProfile = error || !data
-        ? { id: currentUser.id, full_name: currentUser.email, role: "user" }
+        ? { id: currentUser.id, full_name: currentUser.email }
         : data;
-    }
-
-    async function loadUsersForAdmin() {
-      if (currentProfile?.role !== "admin") {
-        users = [];
-        return;
-      }
-
-      const { data, error } = await supabaseClient
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      users = error ? [] : (data || []);
     }
 
     async function loadDataFromBackend() {
@@ -780,7 +738,6 @@
       videos = videoData || [];
       works = workData || [];
 
-      await loadUsersForAdmin();
       renderAll();
     }
 
@@ -793,23 +750,12 @@
       document.getElementById("welcomeText").innerText =
         "Xin chào " + (currentProfile?.full_name || currentUser.email) + " 👋";
 
-      document.getElementById("roleText").innerText =
-        "Role: " + (currentProfile?.role || "user");
-
-      const adminBtn = document.getElementById("adminNavBtn");
-      if (adminBtn) {
-        adminBtn.classList.toggle("hidden", currentProfile?.role !== "admin");
-      }
+      document.getElementById("roleText").innerText = "User workspace";
 
       renderAll();
     }
 
     function showSection(id, btn) {
-      if (id === "admin" && currentProfile?.role !== "admin") {
-        alert("Tài khoản user không có quyền vào Admin.");
-        return;
-      }
-
       document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
       document.getElementById(id).classList.add("active");
 
@@ -1032,39 +978,6 @@
       alert("Đã lưu nghiệp vụ.");
     }
 
-    async function createMockUser() {
-      const email = document.getElementById("newUserName").value.trim();
-      const password = document.getElementById("newUserPassword").value.trim();
-      const full_name = document.getElementById("newFullName").value.trim();
-      const role = document.getElementById("newRole").value;
-
-      if (!email || !password || !full_name) {
-        alert("Điền đủ email, password và tên hiển thị nha anh.");
-        return;
-      }
-
-      const { data, error } = await supabaseClient.functions.invoke("create-user", {
-        body: { email, password, full_name, role }
-      });
-
-      if (error || !data?.success) {
-        alert("Tạo account lỗi: " + (error?.message || data?.error || "Không rõ lỗi"));
-        return;
-      }
-
-      document.getElementById("newUserName").value = "";
-      document.getElementById("newUserPassword").value = "";
-      document.getElementById("newFullName").value = "";
-
-      await loadUsersForAdmin();
-      renderUsers();
-      alert("Đã tạo account thật.");
-    }
-
-    function toggleUser(username) {
-      alert("Chức năng khóa/mở user sẽ làm ở bước sau bằng Edge Function riêng.");
-    }
-
     function renderAll() {
       renderStats();
       renderLanguageList();
@@ -1072,7 +985,6 @@
       renderGrammarReview();
       renderTranslateUI();
       renderWork();
-      renderUsers();
     }
 
     function renderStats() {
@@ -1155,63 +1067,35 @@
         : "<option>Chưa có nghiệp vụ</option>";
     }
 
-    function renderUsers() {
-      const box = document.getElementById("userList");
-      if (!box) return;
-
-      if (currentProfile?.role !== "admin") {
-        box.innerHTML = "<p class='muted'>Không có quyền xem danh sách user.</p>";
-        return;
-      }
-
-      box.innerHTML = `
-        <table>
-          <thead>
-            <tr><th>User ID</th><th>Tên</th><th>Role</th><th>Trạng thái</th><th>Action</th></tr>
-          </thead>
-          <tbody>
-            ${users.map(u => `
-              <tr>
-                <td>${u.id}</td>
-                <td>${u.full_name || ""}</td>
-                <td>${u.role || "user"}</td>
-                <td>Active</td>
-                <td><button onclick="toggleUser('${u.id}')">Khóa/Mở</button></td>
-              </tr>
-            `).join("")}
-          </tbody>
-        </table>
-      `;
-    }
-
     function buildTranslateFeedback() {
       const langLabel = reviewLanguage === "zh" ? "tiếng Trung" : "tiếng Anh";
       const directionLabel = translateDirection === "to_vi"
         ? (reviewLanguage === "zh" ? "Trung → Việt" : "Anh → Việt")
         : (reviewLanguage === "zh" ? "Việt → Trung" : "Việt → Anh");
 
-      return "AI mock - Chấm dịch " + langLabel + "
-"
-        + "- Chiều dịch: " + directionLabel + "
-"
-        + "- Em sẽ kiểm tra: đúng nghĩa, tự nhiên, ngữ pháp, sắc thái câu.
-"
-        + "- Nếu là tiếng Trung: chấm thêm trật tự từ, lượng từ, hư từ và cách dùng ngữ pháp.
-"
-        + "- Nếu là tiếng Anh: chấm thêm tense, collocation, word choice và natural expression.
-"
-        + "- Sau này chỗ này sẽ gọi API AI thật theo đúng ngôn ngữ đang chọn.";
+      return [
+        "AI mock - Chấm dịch " + langLabel,
+        "- Chiều dịch: " + directionLabel,
+        "- Em sẽ kiểm tra: đúng nghĩa, tự nhiên, ngữ pháp, sắc thái câu.",
+        "- Nếu là tiếng Trung: chấm thêm trật tự từ, lượng từ, hư từ và cách dùng ngữ pháp.",
+        "- Nếu là tiếng Anh: chấm thêm tense, collocation, word choice và natural expression.",
+        "- Sau này chỗ này sẽ gọi API AI thật theo đúng ngôn ngữ đang chọn."
+      ].join("\n");
     }
 
     function mockAI(type) {
       const responses = {
         translate: buildTranslateFeedback(),
-        sentence: "AI mock:
-- Câu của anh sẽ được sửa lỗi từ vựng/ngữ pháp.
-- AI sẽ đưa thêm 2 câu tự nhiên hơn để anh học.",
-        work: "AI mock:
-- Em sẽ đọc nghiệp vụ đang chọn và gợi ý hướng xử lý case.
-- Sau này dùng API/MCP để AI truy xuất dữ liệu nghiệp vụ thật."
+        sentence: [
+          "AI mock:",
+          "- Câu của anh sẽ được sửa lỗi từ vựng/ngữ pháp.",
+          "- AI sẽ đưa thêm 2 câu tự nhiên hơn để anh học."
+        ].join("\n"),
+        work: [
+          "AI mock:",
+          "- Em sẽ đọc nghiệp vụ đang chọn và gợi ý hướng xử lý case.",
+          "- Sau này dùng API/MCP để AI truy xuất dữ liệu nghiệp vụ thật."
+        ].join("\n")
       };
 
       const target = type === "translate" ? "translateAI" : type === "sentence" ? "sentenceAI" : "workAI";
