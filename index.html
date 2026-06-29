@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -20,434 +18,165 @@
       --red: #ef4444;
       --shadow: 0 18px 50px rgba(15, 23, 42, 0.08);
     }
+    * { box-sizing: border-box; font-family: "Inter", "Segoe UI", "Noto Sans", "Noto Sans SC", Arial, sans-serif; }
+    body { margin: 0; background: radial-gradient(circle at top left, rgba(34,197,94,0.22), transparent 36%), linear-gradient(135deg, #ecfdf5, #ffffff); color: var(--text); }
+    button { border: 0; border-radius: 14px; padding: 12px 16px; background: var(--green); color: white; font-weight: 700; cursor: pointer; transition: 0.2s; }
+    button:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(22,163,74,0.24); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+    input, textarea, select { width: 100%; padding: 13px 14px; border-radius: 14px; border: 1px solid #bbf7d0; outline: none; margin: 8px 0; background: white; }
+    textarea { min-height: 100px; resize: vertical; }
+    input:focus, textarea:focus, select:focus { border-color: var(--green); box-shadow: 0 0 0 4px rgba(22,163,74,0.15); }
+    .hidden { display: none !important; }
 
-    * {
-      box-sizing: border-box;
-      font-family: "Inter", "Segoe UI", "Noto Sans", "Noto Sans SC", Arial, sans-serif;
-    }
+    .login-page { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+    .login-card { width: min(440px, 100%); background: rgba(255,255,255,0.92); backdrop-filter: blur(14px); border: 1px solid #dcfce7; border-radius: 28px; padding: 34px; box-shadow: var(--shadow); animation: rise 0.5s ease; }
+    .logo { width: 66px; height: 66px; display: grid; place-items: center; border-radius: 20px; background: linear-gradient(135deg, var(--green), var(--green-dark)); color: white; font-size: 32px; font-weight: 900; margin-bottom: 18px; }
+    .login-card h1 { margin: 0 0 8px; }
+    .hint { color: var(--muted); font-size: 14px; line-height: 1.5; }
 
-    body {
-      margin: 0;
-      background:
-        radial-gradient(circle at top left, rgba(34, 197, 94, 0.22), transparent 36%),
-        linear-gradient(135deg, #ecfdf5, #ffffff);
-      color: var(--text);
-    }
+    .msg-box { padding: 12px; border-radius: 12px; margin: 12px 0; font-size: 14px; display: none; }
+    .msg-box.show { display: block; animation: rise 0.3s ease; }
+    .msg-error { background: #fef2f2; border: 1px solid #fecaca; color: var(--red); }
+    .msg-success { background: #f0fdf4; border: 1px solid #86efac; color: var(--green-dark); }
 
-    button {
-      border: 0;
-      border-radius: 14px;
-      padding: 12px 16px;
-      background: var(--green);
-      color: white;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.2s;
-    }
+    .btn-google { background: white; color: #333; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 12px 16px; width: 100%; margin-top: 10px; }
+    .btn-google:hover { background: #f9f9f9; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .btn-google svg { width: 20px; height: 20px; }
 
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 22px rgba(22, 163, 74, 0.24);
-    }
+    .link-btn { background: none; color: var(--green); font-size: 14px; padding: 4px 0; margin: 0; font-weight: 600; text-decoration: underline; }
+    .link-btn:hover { transform: none; box-shadow: none; }
 
-    input, textarea, select {
-      width: 100%;
-      padding: 13px 14px;
-      border-radius: 14px;
-      border: 1px solid #bbf7d0;
-      outline: none;
-      margin: 8px 0;
-      background: white;
-    }
+    .divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; color: var(--muted); font-size: 13px; }
+    .divider::before, .divider::after { content: ""; flex: 1; height: 1px; background: #e2e8f0; }
 
-    textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
+    .spinner { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; margin-right: 8px; vertical-align: middle; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    input:focus, textarea:focus, select:focus {
-      border-color: var(--green);
-      box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.15);
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .login-page {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-    }
-
-    .login-card {
-      width: min(420px, 100%);
-      background: rgba(255, 255, 255, 0.9);
-      backdrop-filter: blur(14px);
-      border: 1px solid #dcfce7;
-      border-radius: 28px;
-      padding: 34px;
-      box-shadow: var(--shadow);
-      animation: rise 0.5s ease;
-    }
-
-    .logo {
-      width: 66px;
-      height: 66px;
-      display: grid;
-      place-items: center;
-      border-radius: 20px;
-      background: linear-gradient(135deg, var(--green), var(--green-dark));
-      color: white;
-      font-size: 32px;
-      font-weight: 900;
-      margin-bottom: 18px;
-    }
-
-    .login-card h1 {
-      margin: 0 0 8px;
-    }
-
-    .hint {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .app {
-      display: grid;
-      grid-template-columns: 270px 1fr;
-      min-height: 100vh;
-    }
-
-    .sidebar {
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      padding: 22px;
-      background: rgba(255, 255, 255, 0.88);
-      backdrop-filter: blur(14px);
-      border-right: 1px solid #dcfce7;
-    }
-
-    .brand {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 28px;
-    }
-
-    .brand .logo {
-      width: 46px;
-      height: 46px;
-      border-radius: 16px;
-      font-size: 24px;
-      margin: 0;
-    }
-
-    .brand h2 {
-      margin: 0;
-      font-size: 20px;
-    }
-
-    .brand p {
-      margin: 2px 0 0;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .nav {
-      display: grid;
-      gap: 10px;
-    }
-
-    .nav button {
-      background: transparent;
-      color: var(--text);
-      text-align: left;
-      box-shadow: none;
-    }
-
-    .nav button.active, .nav button:hover {
-      background: var(--green-soft);
-      color: var(--green-dark);
-      transform: none;
-      box-shadow: none;
-    }
-
-    .logout {
-      position: absolute;
-      left: 22px;
-      right: 22px;
-      bottom: 22px;
-      background: #111827;
-    }
-
-    .content {
-      padding: 30px;
-      max-width: 1280px;
-      width: 100%;
-    }
-
-    .topbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 18px;
-      margin-bottom: 22px;
-    }
-
-    .topbar h1 {
-      margin: 0;
-      font-size: 32px;
-    }
-
-    .topbar p {
-      margin: 6px 0 0;
-      color: var(--muted);
-    }
-
-    .pill {
-      background: white;
-      border: 1px solid #dcfce7;
-      padding: 12px 16px;
-      border-radius: 999px;
-      color: var(--green-dark);
-      font-weight: 700;
-      box-shadow: var(--shadow);
-    }
-
-    .hero {
-      background: linear-gradient(135deg, var(--green), var(--green-dark));
-      color: white;
-      border-radius: 30px;
-      padding: 30px;
-      margin-bottom: 22px;
-      box-shadow: var(--shadow);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::after {
-      content: "学";
-      position: absolute;
-      right: 30px;
-      bottom: -50px;
-      font-size: 180px;
-      opacity: 0.08;
-      font-weight: 900;
-    }
-
-    .hero h2 {
-      font-size: 34px;
-      margin: 0 0 8px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 18px;
-      margin-bottom: 22px;
-    }
-
-    .grid.two {
-      grid-template-columns: repeat(2, 1fr);
-    }
-
-    .card {
-      background: white;
-      border: 1px solid #dcfce7;
-      border-radius: 24px;
-      padding: 22px;
-      box-shadow: var(--shadow);
-      animation: rise 0.42s ease;
-    }
-
-    .card h3 {
-      margin-top: 0;
-    }
-
-    .stat strong {
-      font-size: 34px;
-      color: var(--green-dark);
-      display: block;
-    }
-
-    .muted {
-      color: var(--muted);
-    }
-
-    .section {
-      display: none;
-    }
-
-    .section.active {
-      display: block;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
-
-    .tabs button {
-      background: white;
-      color: var(--green-dark);
-      border: 1px solid #bbf7d0;
-      box-shadow: none;
-    }
-
-    .tabs button.active {
-      background: var(--green);
-      color: white;
-    }
-
-    .list {
-      display: grid;
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .item {
-      padding: 16px;
-      border-radius: 18px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-    }
-
-    .item-title {
-      font-weight: 800;
-      color: var(--green-dark);
-      margin-bottom: 4px;
-    }
-
-    .flashcard {
-      min-height: 190px;
-      display: grid;
-      place-items: center;
-      text-align: center;
-      padding: 22px;
-      border-radius: 22px;
-      background: var(--green-soft);
-      font-size: 30px;
-      line-height: 1.45;
-      font-weight: 750;
-      margin-bottom: 14px;
-      cursor: pointer;
-      word-break: break-word;
-      white-space: pre-line;
-    }
-
-    .flashcard small {
-      display: block;
-      margin-top: 8px;
-      font-size: 18px;
-      line-height: 1.45;
-      font-weight: 500;
-      color: var(--green-dark);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 14px;
-      overflow: hidden;
-      border-radius: 16px;
-    }
-
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid #e2e8f0;
-      text-align: left;
-      font-size: 14px;
-    }
-
-    th {
-      background: var(--green-soft);
-      color: var(--green-dark);
-    }
-
-    .danger {
-      background: var(--red);
-    }
-
-    .direction-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin: 8px 0 10px;
-    }
-
-    .direction-row button {
-      background: white;
-      color: var(--green-dark);
-      border: 1px solid #bbf7d0;
-      box-shadow: none;
-    }
-
-    .direction-row button.active {
-      background: var(--green);
-      color: white;
-    }
-
-    .ai-box {
-      background: #f0fdf4;
-      border: 1px solid #86efac;
-      padding: 16px;
-      border-radius: 18px;
-      margin-top: 14px;
-      white-space: pre-line;
-    }
-
-    @keyframes rise {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
+    .app { display: grid; grid-template-columns: 270px 1fr; min-height: 100vh; }
+    .sidebar { position: sticky; top: 0; height: 100vh; padding: 22px; background: rgba(255,255,255,0.88); backdrop-filter: blur(14px); border-right: 1px solid #dcfce7; }
+    .brand { display: flex; gap: 12px; align-items: center; margin-bottom: 28px; }
+    .brand .logo { width: 46px; height: 46px; border-radius: 16px; font-size: 24px; margin: 0; }
+    .brand h2 { margin: 0; font-size: 20px; }
+    .brand p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
+    .nav { display: grid; gap: 10px; }
+    .nav button { background: transparent; color: var(--text); text-align: left; box-shadow: none; }
+    .nav button.active, .nav button:hover { background: var(--green-soft); color: var(--green-dark); transform: none; box-shadow: none; }
+    .logout { position: absolute; left: 22px; right: 22px; bottom: 22px; background: #111827; }
+    .content { padding: 30px; max-width: 1280px; width: 100%; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 22px; }
+    .topbar h1 { margin: 0; font-size: 32px; }
+    .topbar p { margin: 6px 0 0; color: var(--muted); }
+    .pill { background: white; border: 1px solid #dcfce7; padding: 12px 16px; border-radius: 999px; color: var(--green-dark); font-weight: 700; box-shadow: var(--shadow); }
+    .hero { background: linear-gradient(135deg, var(--green), var(--green-dark)); color: white; border-radius: 30px; padding: 30px; margin-bottom: 22px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+    .hero::after { content: "学"; position: absolute; right: 30px; bottom: -50px; font-size: 180px; opacity: 0.08; font-weight: 900; }
+    .hero h2 { font-size: 34px; margin: 0 0 8px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 22px; }
+    .grid.two { grid-template-columns: repeat(2, 1fr); }
+    .card { background: white; border: 1px solid #dcfce7; border-radius: 24px; padding: 22px; box-shadow: var(--shadow); animation: rise 0.42s ease; }
+    .card h3 { margin-top: 0; }
+    .stat strong { font-size: 34px; color: var(--green-dark); display: block; }
+    .muted { color: var(--muted); }
+    .section { display: none; }
+    .section.active { display: block; }
+    .tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+    .tabs button { background: white; color: var(--green-dark); border: 1px solid #bbf7d0; box-shadow: none; }
+    .tabs button.active { background: var(--green); color: white; }
+    .list { display: grid; gap: 12px; margin-top: 14px; }
+    .item { padding: 16px; border-radius: 18px; background: #f8fafc; border: 1px solid #e2e8f0; }
+    .item-title { font-weight: 800; color: var(--green-dark); margin-bottom: 4px; }
+    .flashcard { min-height: 190px; display: grid; place-items: center; text-align: center; padding: 22px; border-radius: 22px; background: var(--green-soft); font-size: 30px; line-height: 1.45; font-weight: 750; margin-bottom: 14px; cursor: pointer; word-break: break-word; white-space: pre-line; }
+    .flashcard small { display: block; margin-top: 8px; font-size: 18px; line-height: 1.45; font-weight: 500; color: var(--green-dark); }
+    table { width: 100%; border-collapse: collapse; margin-top: 14px; overflow: hidden; border-radius: 16px; }
+    th, td { padding: 12px; border-bottom: 1px solid #e2e8f0; text-align: left; font-size: 14px; }
+    th { background: var(--green-soft); color: var(--green-dark); }
+    .direction-row { display: flex; gap: 10px; flex-wrap: wrap; margin: 8px 0 10px; }
+    .direction-row button { background: white; color: var(--green-dark); border: 1px solid #bbf7d0; box-shadow: none; }
+    .direction-row button.active { background: var(--green); color: white; }
+    .ai-box { background: #f0fdf4; border: 1px solid #86efac; padding: 16px; border-radius: 18px; margin-top: 14px; white-space: pre-line; }
+    .name-display { display: flex; align-items: center; gap: 10px; background: var(--green-soft); padding: 8px 14px; border-radius: 12px; margin-bottom: 16px; }
+    .name-display span { font-weight: 700; color: var(--green-dark); }
+    .name-display button { background: transparent; color: var(--green); font-size: 13px; padding: 4px 10px; border: 1px solid #bbf7d0; }
+    .name-display button:hover { background: var(--green); color: white; }
+    @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 900px) {
-      .app {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        position: static;
-        height: auto;
-      }
-
-      .logout {
-        position: static;
-        margin-top: 18px;
-        width: 100%;
-      }
-
-      .grid, .grid.two {
-        grid-template-columns: 1fr;
-      }
-
-      .topbar {
-        flex-direction: column;
-        align-items: flex-start;
-      }
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; }
+      .logout { position: static; margin-top: 18px; width: 100%; }
+      .grid, .grid.two { grid-template-columns: 1fr; }
+      .topbar { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
 
 <body>
-  <section id="loginPage" class="login-page">
-    <div class="login-card">
+  <!-- ============ AUTH PAGE ============ -->
+  <section id="authPage" class="login-page">
+
+    <!-- FORM ĐĂNG NHẬP -->
+    <div id="loginForm" class="login-card">
       <div class="logo">绿</div>
       <h1>Green Learning Hub</h1>
-      <p class="hint">Đăng nhập để học ngoại ngữ, ôn kiến thức và lưu nghiệp vụ công việc.</p>
+      <p class="hint">Đăng nhập để bắt đầu học.</p>
 
-      <input id="loginUsername" placeholder="Email" />
-      <input id="loginPassword" type="password" placeholder="Password" />
-      <button onclick="login()">Đăng nhập</button>
+      <div id="loginError" class="msg-box msg-error"></div>
+      <div id="loginSuccess" class="msg-box msg-success"></div>
+
+      <button class="btn-google" onclick="loginGoogle()">
+        <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Đăng nhập bằng Google
+      </button>
+
+      <div class="divider">hoặc bằng email</div>
+
+      <input id="loginEmail" type="email" placeholder="Email" autocomplete="email" />
+      <input id="loginPassword" type="password" placeholder="Mật khẩu" autocomplete="current-password" />
+      <button id="loginBtn" onclick="loginEmail()">Đăng nhập</button>
+
+      <div style="display:flex; justify-content:space-between; margin-top:12px;">
+        <button class="link-btn" onclick="showForm('forgot')">Quên mật khẩu?</button>
+        <button class="link-btn" onclick="showForm('register')">Đăng ký tài khoản</button>
+      </div>
     </div>
+
+    <!-- FORM ĐĂNG KÝ -->
+    <div id="registerForm" class="login-card hidden">
+      <div class="logo">绿</div>
+      <h1>Đăng ký</h1>
+      <p class="hint">Tạo tài khoản mới để bắt đầu học.</p>
+
+      <div id="regError" class="msg-box msg-error"></div>
+      <div id="regSuccess" class="msg-box msg-success"></div>
+
+      <input id="regName" type="text" placeholder="Họ tên hiển thị" />
+      <input id="regEmail" type="email" placeholder="Email" autocomplete="email" />
+      <input id="regPassword" type="password" placeholder="Mật khẩu (ít nhất 6 ký tự)" autocomplete="new-password" />
+      <button id="regBtn" onclick="registerEmail()">Tạo tài khoản</button>
+
+      <div style="margin-top:12px; text-align:center;">
+        <button class="link-btn" onclick="showForm('login')">← Quay lại đăng nhập</button>
+      </div>
+    </div>
+
+    <!-- FORM QUÊN MẬT KHẨU -->
+    <div id="forgotForm" class="login-card hidden">
+      <div class="logo">绿</div>
+      <h1>Quên mật khẩu</h1>
+      <p class="hint">Nhập email, anh sẽ nhận link đặt lại mật khẩu trong hộp thư.</p>
+
+      <div id="forgotError" class="msg-box msg-error"></div>
+      <div id="forgotSuccess" class="msg-box msg-success"></div>
+
+      <input id="forgotEmail" type="email" placeholder="Email đã đăng ký" />
+      <button id="forgotBtn" onclick="resetPassword()">Gửi link đặt lại mật khẩu</button>
+
+      <div style="margin-top:12px; text-align:center;">
+        <button class="link-btn" onclick="showForm('login')">← Quay lại đăng nhập</button>
+      </div>
+    </div>
+
   </section>
 
+  <!-- ============ APP CHÍNH ============ -->
   <main id="app" class="app hidden">
     <aside class="sidebar">
       <div class="brand">
@@ -457,7 +186,6 @@
           <p>Language · Review · Work</p>
         </div>
       </div>
-
       <div class="nav">
         <button class="active" onclick="showSection('dashboard', this)">Dashboard</button>
         <button onclick="showSection('language', this)">Học ngoại ngữ</button>
@@ -465,7 +193,6 @@
         <button onclick="showSection('review', this)">Ôn lại kiến thức</button>
         <button onclick="showSection('work', this)">Nghiệp vụ công việc</button>
       </div>
-
       <button class="logout" onclick="logout()">Đăng xuất</button>
     </aside>
 
@@ -478,30 +205,24 @@
         <div class="pill">🌿 MVP Frontend Demo</div>
       </div>
 
+      <div class="name-display">
+        <span>👤 <span id="nameDisplay">-</span></span>
+        <button onclick="editName()">Sửa tên</button>
+      </div>
+
       <section id="dashboard" class="section active">
         <div class="hero">
           <h2>Hôm nay mình học gì?</h2>
           <p>Tập trung vào từ vựng, ngữ pháp, luyện dịch và nghiệp vụ công việc.</p>
         </div>
-
         <div class="grid">
-          <div class="card stat">
-            <strong id="statVocab">0</strong>
-            <span>Từ vựng đã lưu</span>
-          </div>
-          <div class="card stat">
-            <strong id="statGrammar">0</strong>
-            <span>Ngữ pháp đã lưu</span>
-          </div>
-          <div class="card stat">
-            <strong id="statWork">0</strong>
-            <span>Nghiệp vụ công việc</span>
-          </div>
+          <div class="card stat"><strong id="statVocab">0</strong><span>Từ vựng đã lưu</span></div>
+          <div class="card stat"><strong id="statGrammar">0</strong><span>Ngữ pháp đã lưu</span></div>
+          <div class="card stat"><strong id="statWork">0</strong><span>Nghiệp vụ công việc</span></div>
         </div>
-
         <div class="card">
           <h3>Gợi ý phát triển tiếp</h3>
-          <p class="muted">Sau khi anh duyệt flow này, mình sẽ nối Supabase Auth, Supabase Database, API AI và MCP.</p>
+          <p class="muted">Sau khi anh duyệt flow này, mình sẽ nối API AI và MCP.</p>
         </div>
       </section>
 
@@ -510,7 +231,6 @@
           <button class="active" onclick="setLanguage('zh', this)">Tiếng Trung</button>
           <button onclick="setLanguage('en', this)">Tiếng Anh</button>
         </div>
-
         <div class="grid two">
           <div class="card">
             <h3>Thêm từ vựng</h3>
@@ -520,7 +240,6 @@
             <textarea id="vocabExample" placeholder="Ví dụ"></textarea>
             <button onclick="addVocab()">Lưu từ vựng</button>
           </div>
-
           <div class="card">
             <h3>Thêm ngữ pháp</h3>
             <input id="grammarTitle" placeholder="Tên ngữ pháp: 比...更..." />
@@ -529,14 +248,12 @@
             <button onclick="addGrammar()">Lưu ngữ pháp</button>
           </div>
         </div>
-
         <div class="grid two">
           <div class="card">
             <h3>Đoạn văn</h3>
             <textarea id="paragraphText" placeholder="Dán đoạn văn cần học / cần dịch"></textarea>
             <button onclick="addParagraph()">Lưu đoạn văn</button>
           </div>
-
           <div class="card">
             <h3>Link video học</h3>
             <input id="videoTitle" placeholder="Tên video" />
@@ -544,7 +261,6 @@
             <button onclick="addVideo()">Lưu video</button>
           </div>
         </div>
-
         <div class="card">
           <h3>Danh sách dữ liệu ngoại ngữ</h3>
           <div id="languageList" class="list"></div>
@@ -554,12 +270,10 @@
       <section id="import" class="section">
         <div class="card">
           <h3>Import từ vựng bằng Excel</h3>
-          <p class="muted">Cột gợi ý: language, category, term, pinyin, meaning_vi, example, grammar_note, video_link</p>
-
+          <p class="muted">Cột gợi ý: language, category, term, pinyin, meaning_vi, example</p>
           <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" />
           <button onclick="previewExcel()">Preview Excel</button>
           <button onclick="saveExcelRows()">Lưu dữ liệu preview</button>
-
           <div id="excelPreview"></div>
         </div>
       </section>
@@ -569,30 +283,24 @@
           <button class="active" onclick="setReviewLanguage('zh', this)">Ôn Tiếng Trung</button>
           <button onclick="setReviewLanguage('en', this)">Ôn Tiếng Anh</button>
         </div>
-
         <div class="grid two">
           <div class="card">
             <h3 id="flashcardTitle">Flashcard từ vựng</h3>
             <div id="flashcard" class="flashcard" onclick="flipCard()">Chưa có từ để ôn</div>
             <button onclick="nextCard()">Từ tiếp theo</button>
           </div>
-
           <div class="card">
             <h3 id="translateTitle">Luyện dịch đoạn - Tiếng Trung</h3>
-
             <div class="direction-row">
               <button id="toViBtn" class="active" onclick="setTranslateDirection('to_vi', this)">Trung → Việt</button>
               <button id="fromViBtn" onclick="setTranslateDirection('from_vi', this)">Việt → Trung</button>
             </div>
-
             <textarea id="translateInput" placeholder="Nhập câu/đoạn cần luyện dịch"></textarea>
             <textarea id="translateAnswer" placeholder="Nhập bản dịch của anh"></textarea>
-
             <button id="translateBtn" onclick="mockAI('translate')">AI chấm bản dịch tiếng Trung</button>
             <div id="translateAI" class="ai-box hidden"></div>
           </div>
         </div>
-
         <div class="grid two">
           <div class="card">
             <h3>Đặt câu</h3>
@@ -601,7 +309,6 @@
             <button onclick="mockAI('sentence')">AI sửa câu</button>
             <div id="sentenceAI" class="ai-box hidden"></div>
           </div>
-
           <div class="card">
             <h3 id="grammarReviewTitle">Ôn ngữ pháp</h3>
             <div id="grammarReviewList" class="list"></div>
@@ -618,7 +325,6 @@
             <textarea id="workFAQ" placeholder="FAQ / lỗi thường gặp / lưu ý"></textarea>
             <button onclick="addWork()">Lưu nghiệp vụ</button>
           </div>
-
           <div class="card">
             <h3>AI hỗ trợ nghiệp vụ</h3>
             <select id="workSelect"></select>
@@ -627,364 +333,254 @@
             <div id="workAI" class="ai-box hidden"></div>
           </div>
         </div>
-
         <div class="card">
           <h3>Danh sách nghiệp vụ</h3>
           <div id="workList" class="list"></div>
         </div>
       </section>
-
     </section>
   </main>
 
   <script>
     const SUPABASE_URL = "https://avhwastsimcnrknartzj.supabase.co";
-    // Dán anon public key trong Supabase > Project Settings > API > anon/public vào đây.
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2aHdhc3RzaW1jbnJrbmFydHpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI3MjkzOTMsImV4cCI6MjA5ODMwNTM5M30.kuaCpD-YSC3cEuyPggHrGQ0Le5DkCMGo1dDOAAAhYfI";
 
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let currentUser = null;
     let currentProfile = null;
-
     let currentLanguage = "zh";
     let reviewLanguage = "zh";
     let translateDirection = "to_vi";
     let previewRows = [];
     let flashIndex = 0;
     let flashFlipped = false;
+    let vocab = [], grammar = [], paragraphs = [], videos = [], works = [];
 
-    let vocab = [];
-    let grammar = [];
-    let paragraphs = [];
-    let videos = [];
-    let works = [];
-
-    function owner(item) {
-      return item.user_id === currentUser?.id;
+    // ==================== AUTH FORMS ====================
+    function showForm(name) {
+      document.getElementById("loginForm").classList.toggle("hidden", name !== "login");
+      document.getElementById("registerForm").classList.toggle("hidden", name !== "register");
+      document.getElementById("forgotForm").classList.toggle("hidden", name !== "forgot");
+      // ẩn hết msg khi chuyển form
+      document.querySelectorAll(".msg-box").forEach(el => el.classList.remove("show"));
     }
 
-    async function login() {
-      const email = document.getElementById("loginUsername").value.trim();
-      const password = document.getElementById("loginPassword").value.trim();
+    function showMsg(id, text) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.classList.add("show");
+    }
+    function hideMsg(id) {
+      document.getElementById(id).classList.remove("show");
+    }
 
-      if (!email || !password) {
-        alert("Nhập email và password trước nha anh.");
-        return;
+    // ==================== ĐĂNG KÝ ====================
+    async function registerEmail() {
+      const name = document.getElementById("regName").value.trim();
+      const email = document.getElementById("regEmail").value.trim();
+      const password = document.getElementById("regPassword").value;
+      const btn = document.getElementById("regBtn");
+
+      hideMsg("regError"); hideMsg("regSuccess");
+
+      if (!name) return showMsg("regError", "Nhập họ tên.");
+      if (!email) return showMsg("regError", "Nhập email.");
+      if (password.length < 6) return showMsg("regError", "Mật khẩu ít nhất 6 ký tự.");
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Đang tạo...';
+
+      const { data, error } = await sb.auth.signUp({
+        email,
+        password,
+        options: { data: { full_name: name } }
+      });
+
+      btn.disabled = false;
+      btn.textContent = "Tạo tài khoản";
+
+      if (error) return showMsg("regError", error.message);
+
+      // Nếu cần xác nhận email
+      if (data.user && !data.session) {
+        showMsg("regSuccess", "Đăng ký thành công! Kiểm tra email để xác nhận tài khoản.");
       }
-
-      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-      if (error) {
-        alert("Đăng nhập lỗi: " + error.message);
-        return;
+      // Nếu không cần xác nhận → tự động vào
+      if (data.session) {
+        currentUser = data.user;
+        await loadOrCreateProfile(name);
+        await loadDataFromBackend();
+        showApp();
       }
+    }
+
+    // ==================== ĐĂNG NHẬP EMAIL ====================
+    async function loginEmail() {
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      const btn = document.getElementById("loginBtn");
+
+      hideMsg("loginError"); hideMsg("loginSuccess");
+
+      if (!email || !password) return showMsg("loginError", "Nhập email và mật khẩu.");
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Đang đăng nhập...';
+
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+      btn.disabled = false;
+      btn.textContent = "Đăng nhập";
+
+      if (error) return showMsg("loginError", error.message);
 
       currentUser = data.user;
-      await loadProfile();
+      await loadOrCreateProfile();
       await loadDataFromBackend();
       showApp();
     }
 
+    // ==================== ĐĂNG NHẬP GOOGLE ====================
+    async function loginGoogle() {
+      const { error } = await sb.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: window.location.origin + window.location.pathname }
+      });
+      if (error) showMsg("loginError", error.message);
+    }
+
+    // ==================== QUÊN MẬT KHẨU ====================
+    async function resetPassword() {
+      const email = document.getElementById("forgotEmail").value.trim();
+      const btn = document.getElementById("forgotBtn");
+
+      hideMsg("forgotError"); hideMsg("forgotSuccess");
+
+      if (!email) return showMsg("forgotError", "Nhập email đã đăng ký.");
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Đang gửi...';
+
+      const { error } = await sb.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin + window.location.pathname
+      });
+
+      btn.disabled = false;
+      btn.textContent = "Gửi link đặt lại mật khẩu";
+
+      if (error) return showMsg("forgotError", error.message);
+
+      showMsg("forgotSuccess", "Đã gửi! Kiểm tra hộp thư (có thể ở mục Spam).");
+    }
+
+    // ==================== PROFILE ====================
+    async function loadOrCreateProfile(inputName) {
+      try {
+        const { data } = await sb.from("profiles").select("*").eq("id", currentUser.id).maybeSingle();
+
+        if (data) {
+          if (inputName && inputName !== data.full_name) {
+            const { data: updated } = await sb.from("profiles").update({ full_name: inputName }).eq("id", currentUser.id).select().single();
+            currentProfile = updated || data;
+          } else {
+            currentProfile = data;
+          }
+        } else {
+          const displayName = inputName || currentUser.user_metadata?.full_name || currentUser.email?.split("@")[0] || "User";
+          const { data: created } = await sb.from("profiles").insert({ id: currentUser.id, full_name: displayName }).select().single();
+          currentProfile = created || { id: currentUser.id, full_name: displayName };
+        }
+      } catch (e) {
+        currentProfile = { id: currentUser.id, full_name: inputName || "User" };
+      }
+    }
+
+    function editName() {
+      const newName = prompt("Nhập tên hiển thị mới:", currentProfile?.full_name || "");
+      if (newName && newName.trim()) {
+        sb.from("profiles").update({ full_name: newName.trim() }).eq("id", currentUser.id).then(({ data }) => {
+          if (data) { currentProfile = data; renderNameDisplay(); }
+        });
+      }
+    }
+
+    function renderNameDisplay() {
+      const name = currentProfile?.full_name || "User";
+      document.getElementById("nameDisplay").textContent = name;
+      document.getElementById("welcomeText").textContent = "Xin chào " + name + " 👋";
+    }
+
+    // ==================== LOGOUT ====================
     async function logout() {
-      await supabaseClient.auth.signOut();
+      await sb.auth.signOut();
       currentUser = null;
       currentProfile = null;
       document.getElementById("app").classList.add("hidden");
-      document.getElementById("loginPage").classList.remove("hidden");
+      document.getElementById("authPage").classList.remove("hidden");
+      showForm("login");
     }
 
-    async function loadProfile() {
-      const { data, error } = await supabaseClient
-        .from("profiles")
-        .select("*")
-        .eq("id", currentUser.id)
-        .single();
-
-      currentProfile = error || !data
-        ? { id: currentUser.id, full_name: currentUser.email }
-        : data;
-    }
-
+    // ==================== LOAD DATA ====================
     async function loadDataFromBackend() {
-      const { data: vocabData } = await supabaseClient
-        .from("vocabulary_items")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      const { data: grammarData } = await supabaseClient
-        .from("grammar_items")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      const { data: paragraphData } = await supabaseClient
-        .from("paragraph_items")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      const { data: videoData } = await supabaseClient
-        .from("video_links")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      const { data: workData } = await supabaseClient
-        .from("work_processes")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      vocab = vocabData || [];
-      grammar = grammarData || [];
-      paragraphs = paragraphData || [];
-      videos = videoData || [];
-      works = workData || [];
-
-      renderAll();
+      try {
+        const [v, g, p, vi, w] = await Promise.all([
+          sb.from("vocabulary_items").select("*").order("created_at", { ascending: false }),
+          sb.from("grammar_items").select("*").order("created_at", { ascending: false }),
+          sb.from("paragraph_items").select("*").order("created_at", { ascending: false }),
+          sb.from("video_links").select("*").order("created_at", { ascending: false }),
+          sb.from("work_processes").select("*").order("created_at", { ascending: false })
+        ]);
+        vocab = v.data || []; grammar = g.data || []; paragraphs = p.data || [];
+        videos = vi.data || []; works = w.data || [];
+        renderAll();
+      } catch (e) { console.error("Load error:", e); }
     }
 
     function showApp() {
-      if (!currentUser) return;
-
-      document.getElementById("loginPage").classList.add("hidden");
+      document.getElementById("authPage").classList.add("hidden");
       document.getElementById("app").classList.remove("hidden");
-
-      document.getElementById("welcomeText").innerText =
-        "Xin chào " + (currentProfile?.full_name || currentUser.email) + " 👋";
-
-      document.getElementById("roleText").innerText = "User workspace";
-
+      renderNameDisplay();
       renderAll();
     }
 
+    function owner(item) { return item.user_id === currentUser?.id; }
+
+    // ==================== SECTIONS ====================
     function showSection(id, btn) {
       document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
       document.getElementById(id).classList.add("active");
-
       document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
-
+      if (btn) btn.classList.add("active");
       renderAll();
     }
 
     function setLanguage(lang, btn) {
       currentLanguage = lang;
-      const parent = btn.closest(".tabs");
-      parent.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.closest(".tabs").querySelectorAll("button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       renderLanguageList();
     }
 
     function setReviewLanguage(lang, btn) {
       reviewLanguage = lang;
-      const parent = btn.closest(".tabs");
-      parent.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+      btn.closest(".tabs").querySelectorAll("button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
-      flashIndex = 0;
-      flashFlipped = false;
-      renderFlashcard();
-      renderGrammarReview();
-      renderTranslateUI();
+      flashIndex = 0; flashFlipped = false;
+      renderFlashcard(); renderGrammarReview(); renderTranslateUI();
     }
 
-    function setTranslateDirection(direction, btn) {
-      translateDirection = direction;
-      const parent = btn.closest(".direction-row");
-      parent.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+    function setTranslateDirection(dir, btn) {
+      translateDirection = dir;
+      btn.closest(".direction-row").querySelectorAll("button").forEach(b => b.classList.remove("active"));
       btn.classList.add("active");
       renderTranslateUI();
     }
 
-    function renderTranslateUI() {
-      const langLabel = reviewLanguage === "zh" ? "Tiếng Trung" : "Tiếng Anh";
-      const targetLabel = reviewLanguage === "zh" ? "Trung" : "Anh";
-      const sourceLabel = reviewLanguage === "zh" ? "tiếng Trung" : "tiếng Anh";
-
-      const title = document.getElementById("translateTitle");
-      const input = document.getElementById("translateInput");
-      const answer = document.getElementById("translateAnswer");
-      const btn = document.getElementById("translateBtn");
-      const toViBtn = document.getElementById("toViBtn");
-      const fromViBtn = document.getElementById("fromViBtn");
-
-      if (!title || !input || !answer || !btn) return;
-
-      title.innerText = "Luyện dịch đoạn - " + langLabel;
-      btn.innerText = "AI chấm bản dịch " + langLabel;
-      if (toViBtn) toViBtn.innerText = targetLabel + " → Việt";
-      if (fromViBtn) fromViBtn.innerText = "Việt → " + targetLabel;
-
-      if (translateDirection === "to_vi") {
-        input.placeholder = "Nhập câu/đoạn " + sourceLabel + " cần dịch sang tiếng Việt";
-        answer.placeholder = "Nhập bản dịch tiếng Việt của anh";
-      } else {
-        input.placeholder = "Nhập câu/đoạn tiếng Việt cần dịch sang tiếng " + targetLabel;
-        answer.placeholder = "Nhập bản dịch tiếng " + targetLabel + " của anh";
-      }
-    }
-
-    async function addVocab() {
-      const item = {
-        user_id: currentUser.id,
-        language: currentLanguage,
-        category: "manual",
-        term: document.getElementById("vocabTerm").value.trim(),
-        pinyin: document.getElementById("vocabPinyin").value.trim(),
-        meaning_vi: document.getElementById("vocabMeaning").value.trim(),
-        example: document.getElementById("vocabExample").value.trim()
-      };
-
-      if (!item.term || !item.meaning_vi) return alert("Nhập từ và nghĩa trước nha anh.");
-
-      const { error } = await supabaseClient.from("vocabulary_items").insert(item);
-      if (error) return alert("Lưu từ vựng lỗi: " + error.message);
-
-      document.getElementById("vocabTerm").value = "";
-      document.getElementById("vocabPinyin").value = "";
-      document.getElementById("vocabMeaning").value = "";
-      document.getElementById("vocabExample").value = "";
-
-      await loadDataFromBackend();
-      alert("Đã lưu từ vựng vào backend.");
-    }
-
-    async function addGrammar() {
-      const item = {
-        user_id: currentUser.id,
-        language: currentLanguage,
-        title: document.getElementById("grammarTitle").value.trim(),
-        explanation: document.getElementById("grammarExplain").value.trim(),
-        example: document.getElementById("grammarExample").value.trim()
-      };
-
-      if (!item.title) return alert("Nhập tên ngữ pháp trước nha anh.");
-
-      const { error } = await supabaseClient.from("grammar_items").insert(item);
-      if (error) return alert("Lưu ngữ pháp lỗi: " + error.message);
-
-      document.getElementById("grammarTitle").value = "";
-      document.getElementById("grammarExplain").value = "";
-      document.getElementById("grammarExample").value = "";
-
-      await loadDataFromBackend();
-      alert("Đã lưu ngữ pháp vào backend.");
-    }
-
-    async function addParagraph() {
-      const content = document.getElementById("paragraphText").value.trim();
-      if (!content) return;
-
-      const { error } = await supabaseClient
-        .from("paragraph_items")
-        .insert({ user_id: currentUser.id, language: currentLanguage, content });
-
-      if (error) return alert("Lưu đoạn văn lỗi: " + error.message);
-
-      document.getElementById("paragraphText").value = "";
-      await loadDataFromBackend();
-      alert("Đã lưu đoạn văn.");
-    }
-
-    async function addVideo() {
-      const title = document.getElementById("videoTitle").value.trim();
-      const url = document.getElementById("videoLink").value.trim();
-
-      if (!title || !url) return;
-
-      const { error } = await supabaseClient
-        .from("video_links")
-        .insert({ user_id: currentUser.id, language: currentLanguage, title, url });
-
-      if (error) return alert("Lưu video lỗi: " + error.message);
-
-      document.getElementById("videoTitle").value = "";
-      document.getElementById("videoLink").value = "";
-      await loadDataFromBackend();
-      alert("Đã lưu video.");
-    }
-
-    async function previewExcel() {
-      const file = document.getElementById("excelFile").files[0];
-      if (!file) return alert("Chọn file Excel trước nha anh.");
-
-      const data = await file.arrayBuffer();
-      const workbook = XLSX.read(data);
-      const sheet = workbook.Sheets[workbook.SheetNames[0]];
-      previewRows = XLSX.utils.sheet_to_json(sheet);
-
-      if (!previewRows.length) {
-        document.getElementById("excelPreview").innerHTML = "<p>File không có dữ liệu.</p>";
-        return;
-      }
-
-      const headers = Object.keys(previewRows[0]);
-      const rowsHtml = previewRows.slice(0, 10).map(row => {
-        return "<tr>" + headers.map(h => `<td>${row[h] || ""}</td>`).join("") + "</tr>";
-      }).join("");
-
-      document.getElementById("excelPreview").innerHTML = `
-        <p class="muted">Preview ${previewRows.length} dòng. Đang hiển thị tối đa 10 dòng đầu.</p>
-        <table>
-          <thead><tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr></thead>
-          <tbody>${rowsHtml}</tbody>
-        </table>
-      `;
-    }
-
-    async function saveExcelRows() {
-      if (!previewRows.length) return alert("Chưa có dữ liệu preview để lưu.");
-
-      const mapped = previewRows.map(row => ({
-        user_id: currentUser.id,
-        language: row.language || row.Language || currentLanguage,
-        category: row.category || row.Category || "excel",
-        term: row.term || row.hanzi || row.word || row.Word || "",
-        pinyin: row.pinyin || "",
-        meaning_vi: row.meaning_vi || row.meaning || row.vi || "",
-        example: row.example || "",
-        grammar_note: row.grammar_note || "",
-        video_link: row.video_link || ""
-      })).filter(x => x.term && x.meaning_vi);
-
-      if (!mapped.length) return alert("Không có dòng hợp lệ.");
-
-      const { error } = await supabaseClient.from("vocabulary_items").insert(mapped);
-      if (error) return alert("Import lỗi: " + error.message);
-
-      previewRows = [];
-      document.getElementById("excelPreview").innerHTML = "";
-      document.getElementById("excelFile").value = "";
-
-      await loadDataFromBackend();
-      alert("Đã lưu " + mapped.length + " dòng từ Excel vào backend.");
-    }
-
-    async function addWork() {
-      const item = {
-        user_id: currentUser.id,
-        title: document.getElementById("workName").value.trim(),
-        process: document.getElementById("workProcess").value.trim(),
-        faq: document.getElementById("workFAQ").value.trim()
-      };
-
-      if (!item.title) return alert("Nhập tên nghiệp vụ trước nha anh.");
-
-      const { error } = await supabaseClient.from("work_processes").insert(item);
-      if (error) return alert("Lưu nghiệp vụ lỗi: " + error.message);
-
-      document.getElementById("workName").value = "";
-      document.getElementById("workProcess").value = "";
-      document.getElementById("workFAQ").value = "";
-
-      await loadDataFromBackend();
-      alert("Đã lưu nghiệp vụ.");
-    }
-
+    // ==================== RENDER ====================
     function renderAll() {
-      renderStats();
-      renderLanguageList();
-      renderFlashcard();
-      renderGrammarReview();
-      renderTranslateUI();
-      renderWork();
+      renderStats(); renderLanguageList(); renderFlashcard();
+      renderGrammarReview(); renderTranslateUI(); renderWork();
     }
 
     function renderStats() {
@@ -994,125 +590,189 @@
     }
 
     function renderLanguageList() {
-      const list = document.getElementById("languageList");
-      const myVocab = vocab.filter(x => owner(x) && x.language === currentLanguage);
-      const myGrammar = grammar.filter(x => owner(x) && x.language === currentLanguage);
-      const myParagraphs = paragraphs.filter(x => owner(x) && x.language === currentLanguage);
-      const myVideos = videos.filter(x => owner(x) && x.language === currentLanguage);
-
-      list.innerHTML = `
-        <div class="item"><div class="item-title">Từ vựng (${myVocab.length})</div>${myVocab.slice(0, 5).map(x => `${x.term} - ${x.meaning_vi}`).join("<br>") || "Chưa có"}</div>
-        <div class="item"><div class="item-title">Ngữ pháp (${myGrammar.length})</div>${myGrammar.slice(0, 5).map(x => x.title).join("<br>") || "Chưa có"}</div>
-        <div class="item"><div class="item-title">Đoạn văn (${myParagraphs.length})</div>${myParagraphs.slice(0, 3).map(x => (x.content || "").slice(0, 120) + "...").join("<br>") || "Chưa có"}</div>
-        <div class="item"><div class="item-title">Video (${myVideos.length})</div>${myVideos.slice(0, 5).map(x => `<a href="${x.url}" target="_blank">${x.title}</a>`).join("<br>") || "Chưa có"}</div>
-      `;
+      const el = document.getElementById("languageList");
+      const mv = vocab.filter(x => owner(x) && x.language === currentLanguage);
+      const mg = grammar.filter(x => owner(x) && x.language === currentLanguage);
+      const mp = paragraphs.filter(x => owner(x) && x.language === currentLanguage);
+      const mvi = videos.filter(x => owner(x) && x.language === currentLanguage);
+      el.innerHTML = `
+        <div class="item"><div class="item-title">Từ vựng (${mv.length})</div>${mv.slice(0,5).map(x=>`${x.term} - ${x.meaning_vi}`).join("<br>")||"Chưa có"}</div>
+        <div class="item"><div class="item-title">Ngữ pháp (${mg.length})</div>${mg.slice(0,5).map(x=>x.title).join("<br>")||"Chưa có"}</div>
+        <div class="item"><div class="item-title">Đoạn văn (${mp.length})</div>${mp.slice(0,3).map(x=>(x.content||"").slice(0,120)+"...").join("<br>")||"Chưa có"}</div>
+        <div class="item"><div class="item-title">Video (${mvi.length})</div>${mvi.slice(0,5).map(x=>`<a href="${x.url}" target="_blank">${x.title}</a>`).join("<br>")||"Chưa có"}</div>`;
     }
 
     function renderFlashcard() {
       const card = document.getElementById("flashcard");
-      const myVocab = vocab.filter(x => owner(x) && x.language === reviewLanguage);
-      const langLabel = reviewLanguage === "zh" ? "Tiếng Trung" : "Tiếng Anh";
-      document.getElementById("flashcardTitle").innerText = "Flashcard từ vựng - " + langLabel;
-
-      if (!myVocab.length) {
-        card.innerText = "Chưa có từ để ôn " + langLabel;
-        return;
-      }
-
-      if (flashIndex >= myVocab.length) flashIndex = 0;
-      const item = myVocab[flashIndex];
-
-      if (!flashFlipped) {
-        card.innerText = item.term;
-      } else {
-        card.innerHTML = `${item.meaning_vi || ""}<small>${item.pinyin || ""}</small><small>${item.example || ""}</small>`;
-      }
+      const mv = vocab.filter(x => owner(x) && x.language === reviewLanguage);
+      const label = reviewLanguage === "zh" ? "Tiếng Trung" : "Tiếng Anh";
+      document.getElementById("flashcardTitle").innerText = "Flashcard từ vựng - " + label;
+      if (!mv.length) { card.innerText = "Chưa có từ để ôn " + label; return; }
+      if (flashIndex >= mv.length) flashIndex = 0;
+      const item = mv[flashIndex];
+      card.innerHTML = flashFlipped
+        ? `${item.meaning_vi||""}<small>${item.pinyin||""}</small><small>${item.example||""}</small>`
+        : item.term;
     }
 
-    function flipCard() {
-      flashFlipped = !flashFlipped;
-      renderFlashcard();
-    }
-
+    function flipCard() { flashFlipped = !flashFlipped; renderFlashcard(); }
     function nextCard() {
-      const myVocab = vocab.filter(x => owner(x) && x.language === reviewLanguage);
-      if (!myVocab.length) return;
-      flashIndex = (flashIndex + 1) % myVocab.length;
+      const mv = vocab.filter(x => owner(x) && x.language === reviewLanguage);
+      if (!mv.length) return;
+      flashIndex = (flashIndex + 1) % mv.length;
       flashFlipped = false;
       renderFlashcard();
     }
 
     function renderGrammarReview() {
       const box = document.getElementById("grammarReviewList");
-      const myGrammar = grammar.filter(x => owner(x) && x.language === reviewLanguage);
-      const langLabel = reviewLanguage === "zh" ? "Tiếng Trung" : "Tiếng Anh";
-      document.getElementById("grammarReviewTitle").innerText = "Ôn ngữ pháp - " + langLabel;
-
-      box.innerHTML = myGrammar.length
-        ? myGrammar.map(g => `<div class="item"><div class="item-title">${g.title}</div>${g.explanation || ""}<br><span class="muted">${g.example || ""}</span></div>`).join("")
+      const mg = grammar.filter(x => owner(x) && x.language === reviewLanguage);
+      const label = reviewLanguage === "zh" ? "Tiếng Trung" : "Tiếng Anh";
+      document.getElementById("grammarReviewTitle").innerText = "Ôn ngữ pháp - " + label;
+      box.innerHTML = mg.length
+        ? mg.map(g => `<div class="item"><div class="item-title">${g.title}</div>${g.explanation||""}<br><span class="muted">${g.example||""}</span></div>`).join("")
         : "<p class='muted'>Chưa có ngữ pháp để ôn.</p>";
     }
 
+    function renderTranslateUI() {
+      const label = reviewLanguage === "zh" ? "Tiếng Trung" : "Tiếng Anh";
+      const target = reviewLanguage === "zh" ? "Trung" : "Anh";
+      const t = document.getElementById("translateTitle");
+      const inp = document.getElementById("translateInput");
+      const ans = document.getElementById("translateAnswer");
+      const btn = document.getElementById("translateBtn");
+      if (!t) return;
+      t.innerText = "Luyện dịch đoạn - " + label;
+      btn.innerText = "AI chấm bản dịch " + label;
+      document.getElementById("toViBtn").innerText = target + " → Việt";
+      document.getElementById("fromViBtn").innerText = "Việt → " + target;
+      if (translateDirection === "to_vi") {
+        inp.placeholder = "Nhập câu/đoạn " + label.toLowerCase() + " cần dịch sang tiếng Việt";
+        ans.placeholder = "Nhập bản dịch tiếng Việt của anh";
+      } else {
+        inp.placeholder = "Nhập câu/đoạn tiếng Việt cần dịch sang tiếng " + target;
+        ans.placeholder = "Nhập bản dịch tiếng " + target + " của anh";
+      }
+    }
+
     function renderWork() {
-      const list = document.getElementById("workList");
-      const select = document.getElementById("workSelect");
-      const myWorks = works.filter(owner);
-
-      list.innerHTML = myWorks.length
-        ? myWorks.map(w => `<div class="item"><div class="item-title">${w.title}</div><b>Quy trình:</b><br>${w.process || "Chưa có"}<br><br><b>FAQ:</b><br>${w.faq || "Chưa có"}</div>`).join("")
+      const mw = works.filter(owner);
+      document.getElementById("workList").innerHTML = mw.length
+        ? mw.map(w => `<div class="item"><div class="item-title">${w.title}</div><b>Quy trình:</b><br>${w.process||"Chưa có"}<br><br><b>FAQ:</b><br>${w.faq||"Chưa có"}</div>`).join("")
         : "<p class='muted'>Chưa có nghiệp vụ.</p>";
-
-      select.innerHTML = myWorks.length
-        ? myWorks.map(w => `<option value="${w.title}">${w.title}</option>`).join("")
+      document.getElementById("workSelect").innerHTML = mw.length
+        ? mw.map(w => `<option value="${w.title}">${w.title}</option>`).join("")
         : "<option>Chưa có nghiệp vụ</option>";
     }
 
-    function buildTranslateFeedback() {
-      const langLabel = reviewLanguage === "zh" ? "tiếng Trung" : "tiếng Anh";
-      const directionLabel = translateDirection === "to_vi"
-        ? (reviewLanguage === "zh" ? "Trung → Việt" : "Anh → Việt")
-        : (reviewLanguage === "zh" ? "Việt → Trung" : "Việt → Anh");
-
-      return [
-        "AI mock - Chấm dịch " + langLabel,
-        "- Chiều dịch: " + directionLabel,
-        "- Em sẽ kiểm tra: đúng nghĩa, tự nhiên, ngữ pháp, sắc thái câu.",
-        "- Nếu là tiếng Trung: chấm thêm trật tự từ, lượng từ, hư từ và cách dùng ngữ pháp.",
-        "- Nếu là tiếng Anh: chấm thêm tense, collocation, word choice và natural expression.",
-        "- Sau này chỗ này sẽ gọi API AI thật theo đúng ngôn ngữ đang chọn."
-      ].join("\n");
+    // ==================== ADD DATA ====================
+    async function addVocab() {
+      const item = { user_id: currentUser.id, language: currentLanguage, category: "manual", term: document.getElementById("vocabTerm").value.trim(), pinyin: document.getElementById("vocabPinyin").value.trim(), meaning_vi: document.getElementById("vocabMeaning").value.trim(), example: document.getElementById("vocabExample").value.trim() };
+      if (!item.term || !item.meaning_vi) return alert("Nhập từ và nghĩa.");
+      const { error } = await sb.from("vocabulary_items").insert(item);
+      if (error) return alert("Lỗi: " + error.message);
+      ["vocabTerm","vocabPinyin","vocabMeaning","vocabExample"].forEach(id => document.getElementById(id).value = "");
+      await loadDataFromBackend(); alert("Đã lưu từ vựng.");
     }
 
+    async function addGrammar() {
+      const item = { user_id: currentUser.id, language: currentLanguage, title: document.getElementById("grammarTitle").value.trim(), explanation: document.getElementById("grammarExplain").value.trim(), example: document.getElementById("grammarExample").value.trim() };
+      if (!item.title) return alert("Nhập tên ngữ pháp.");
+      const { error } = await sb.from("grammar_items").insert(item);
+      if (error) return alert("Lỗi: " + error.message);
+      ["grammarTitle","grammarExplain","grammarExample"].forEach(id => document.getElementById(id).value = "");
+      await loadDataFromBackend(); alert("Đã lưu ngữ pháp.");
+    }
+
+    async function addParagraph() {
+      const content = document.getElementById("paragraphText").value.trim();
+      if (!content) return;
+      const { error } = await sb.from("paragraph_items").insert({ user_id: currentUser.id, language: currentLanguage, content });
+      if (error) return alert("Lỗi: " + error.message);
+      document.getElementById("paragraphText").value = "";
+      await loadDataFromBackend(); alert("Đã lưu đoạn văn.");
+    }
+
+    async function addVideo() {
+      const title = document.getElementById("videoTitle").value.trim();
+      const url = document.getElementById("videoLink").value.trim();
+      if (!title || !url) return;
+      const { error } = await sb.from("video_links").insert({ user_id: currentUser.id, language: currentLanguage, title, url });
+      if (error) return alert("Lỗi: " + error.message);
+      ["videoTitle","videoLink"].forEach(id => document.getElementById(id).value = "");
+      await loadDataFromBackend(); alert("Đã lưu video.");
+    }
+
+    async function addWork() {
+      const item = { user_id: currentUser.id, title: document.getElementById("workName").value.trim(), process: document.getElementById("workProcess").value.trim(), faq: document.getElementById("workFAQ").value.trim() };
+      if (!item.title) return alert("Nhập tên nghiệp vụ.");
+      const { error } = await sb.from("work_processes").insert(item);
+      if (error) return alert("Lỗi: " + error.message);
+      ["workName","workProcess","workFAQ"].forEach(id => document.getElementById(id).value = "");
+      await loadDataFromBackend(); alert("Đã lưu nghiệp vụ.");
+    }
+
+    // ==================== EXCEL ====================
+    async function previewExcel() {
+      const file = document.getElementById("excelFile").files[0];
+      if (!file) return alert("Chọn file Excel.");
+      const data = await file.arrayBuffer();
+      const wb = XLSX.read(data);
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      previewRows = XLSX.utils.sheet_to_json(ws);
+      if (!previewRows.length) { document.getElementById("excelPreview").innerHTML = "<p>File không có dữ liệu.</p>"; return; }
+      const h = Object.keys(previewRows[0]);
+      document.getElementById("excelPreview").innerHTML = `<p class="muted">Preview ${previewRows.length} dòng (tối đa 10).</p><table><thead><tr>${h.map(k=>`<th>${k}</th>`).join("")}</tr></thead><tbody>${previewRows.slice(0,10).map(r=>"<tr>"+h.map(k=>`<td>${r[k]||""}</td>`).join("")+"</tr>").join("")}</tbody></table>`;
+    }
+
+    async function saveExcelRows() {
+      if (!previewRows.length) return alert("Chưa preview.");
+      const mapped = previewRows.map(r => ({ user_id: currentUser.id, language: r.language||r.Language||currentLanguage, category: r.category||r.Category||"excel", term: r.term||r.hanzi||r.word||r.Word||"", pinyin: r.pinyin||"", meaning_vi: r.meaning_vi||r.meaning||r.vi||"", example: r.example||"", grammar_note: r.grammar_note||"", video_link: r.video_link||"" })).filter(x => x.term && x.meaning_vi);
+      if (!mapped.length) return alert("Không có dòng hợp lệ.");
+      const { error } = await sb.from("vocabulary_items").insert(mapped);
+      if (error) return alert("Lỗi: " + error.message);
+      previewRows = []; document.getElementById("excelPreview").innerHTML = ""; document.getElementById("excelFile").value = "";
+      await loadDataFromBackend(); alert("Đã lưu " + mapped.length + " dòng.");
+    }
+
+    // ==================== MOCK AI ====================
     function mockAI(type) {
-      const responses = {
-        translate: buildTranslateFeedback(),
-        sentence: [
-          "AI mock:",
-          "- Câu của anh sẽ được sửa lỗi từ vựng/ngữ pháp.",
-          "- AI sẽ đưa thêm 2 câu tự nhiên hơn để anh học."
-        ].join("\n"),
-        work: [
-          "AI mock:",
-          "- Em sẽ đọc nghiệp vụ đang chọn và gợi ý hướng xử lý case.",
-          "- Sau này dùng API/MCP để AI truy xuất dữ liệu nghiệp vụ thật."
-        ].join("\n")
+      const res = {
+        translate: "AI mock - Chấm dịch " + (reviewLanguage==="zh"?"tiếng Trung":"tiếng Anh") + "\n- Chiều: " + (translateDirection==="to_vi"?"Ngoại → Việt":"Việt → Ngoại") + "\n- Kiểm tra: đúng nghĩa, tự nhiên, ngữ pháp, sắc thái.\n- Sau này sẽ gọi API AI thật.",
+        sentence: "AI mock:\n- Sửa lỗi từ vựng/ngữ pháp.\n- Đưa thêm 2 câu tự nhiên hơn.",
+        work: "AI mock:\n- Đọc nghiệp vụ đang chọn và gợi ý hướng xử lý.\n- Sau này dùng API/MCP truy xuất dữ liệu thật."
       };
-
-      const target = type === "translate" ? "translateAI" : type === "sentence" ? "sentenceAI" : "workAI";
+      const target = type==="translate"?"translateAI":type==="sentence"?"sentenceAI":"workAI";
       document.getElementById(target).classList.remove("hidden");
-      document.getElementById(target).innerText = responses[type];
+      document.getElementById(target).innerText = res[type];
     }
 
+    // ==================== INIT ====================
     window.onload = async function() {
-      const { data } = await supabaseClient.auth.getSession();
+      // Xử lý khi quay lại từ link reset password
+      const hash = window.location.hash;
+      if (hash && hash.includes("type=recovery")) {
+        showForm("login");
+        showMsg("loginSuccess", "Vui lòng đặt mật khẩu mới bằng form đăng nhập.");
+      }
 
+      // Kiểm tra session cũ
+      const { data } = await sb.auth.getSession();
       if (data.session?.user) {
         currentUser = data.session.user;
-        await loadProfile();
+        await loadOrCreateProfile();
         await loadDataFromBackend();
         showApp();
       }
     };
+
+    // Enter key
+    document.addEventListener("keydown", function(e) {
+      if (e.key !== "Enter") return;
+      if (!document.getElementById("loginForm").classList.contains("hidden")) loginEmail();
+      if (!document.getElementById("registerForm").classList.contains("hidden")) registerEmail();
+      if (!document.getElementById("forgotForm").classList.contains("hidden")) resetPassword();
+    });
   </script>
 </body>
 </html>
