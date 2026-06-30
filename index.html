@@ -210,11 +210,22 @@
           <h2>Hôm nay mình học gì?</h2>
           <p>Tập trung vào từ vựng, ngữ pháp, luyện dịch và nghiệp vụ công việc.</p>
         </div>
-        <div class="grid">
-          <div class="card stat"><strong id="statVocab">0</strong><span>Từ vựng đã lưu</span></div>
-          <div class="card stat"><strong id="statGrammar">0</strong><span>Ngữ pháp đã lưu</span></div>
-          <div class="card stat"><strong id="statWork">0</strong><span>Nghiệp vụ công việc</span></div>
-        </div>
+<div class="grid">
+  <div class="card stat"><strong id="statVocab">0</strong><span>Từ vựng đã lưu</span></div>
+  <div class="card stat"><strong id="statGrammar">0</strong><span>Ngữ pháp đã lưu</span></div>
+  <div class="card stat"><strong id="statWork">0</strong><span>Nghiệp vụ công việc</span></div>
+</div>
+
+<div class="card">
+  <h3>Hoạt động gần đây</h3>
+  <div id="recentActivity" class="list"></div>
+  <button onclick="toggleRecentView()" id="recentToggleBtn" style="margin-top:10px;">Xem thêm</button>
+</div>
+
+<div class="card">
+  <h3>Gợi ý phát triển tiếp</h3>
+  <p class="muted">Sau khi anh duyệt flow này, mình sẽ nối API AI và MCP.</p>
+</div>
         <div class="card">
           <h3>Gợi ý phát triển tiếp</h3>
           <p class="muted">Sau khi anh duyệt flow này, mình sẽ nối API AI và MCP.</p>
@@ -512,13 +523,16 @@ async function loadOrCreateProfile(inputName) {
 function showApp() {
   document.getElementById("authPage").classList.add("hidden");
   document.getElementById("app").classList.remove("hidden");
-  
-  // Luôn gọi, không phụ thuộc currentProfile
+
   const name = currentProfile?.full_name || currentUser.email?.split("@")[0] || "User";
-  document.getElementById("nameDisplay").textContent = name;
   document.getElementById("welcomeText").textContent = "Xin chào " + name + " 👋";
-  
+
   renderAll();
+}
+
+// ==================== OWNER CHECK ====================
+function owner(x) {
+  return currentUser && x.user_id === currentUser.id;
 }
 
 // ==================== LOAD DATA - SỬA LẠI ====================
@@ -576,12 +590,42 @@ async function loadDataFromBackend() {
       renderTranslateUI();
     }
 
-    // ==================== RENDER ====================
     function renderAll() {
-      renderStats(); renderLanguageList(); renderFlashcard();
-      renderGrammarReview(); renderTranslateUI(); renderWork();
-    }
+  renderStats(); renderLanguageList(); renderFlashcard();
+  renderGrammarReview(); renderTranslateUI(); renderWork();
+  renderRecentActivity();
+}
+let showAllRecent = false;
 
+function toggleRecentView() {
+  showAllRecent = !showAllRecent;
+  document.getElementById("recentToggleBtn").textContent = showAllRecent ? "Thu gọn" : "Xem thêm";
+  renderRecentActivity();
+}
+
+function renderRecentActivity() {
+  const el = document.getElementById("recentActivity");
+  if (!el) return;
+
+  const tag = (type, label) => (x) => ({
+    type, label,
+    title: x.term || x.title || x.content?.slice(0,60) || x.url,
+    created_at: x.created_at
+  });
+
+  let items = [
+    ...vocab.filter(owner).map(tag("vocab", "Từ vựng")),
+    ...grammar.filter(owner).map(tag("grammar", "Ngữ pháp")),
+    ...paragraphs.filter(owner).map(tag("paragraph", "Đoạn văn")),
+    ...videos.filter(owner).map(tag("video", "Video"))
+  ].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+  const shown = showAllRecent ? items : items.slice(0, 3);
+
+  el.innerHTML = shown.length
+    ? shown.map(i => `<div class="item"><b>${i.label}:</b> ${i.title}</div>`).join("")
+    : "<p class='muted'>Chưa có hoạt động nào.</p>";
+}
     function renderStats() {
       document.getElementById("statVocab").innerText = vocab.filter(owner).length;
       document.getElementById("statGrammar").innerText = grammar.filter(owner).length;
