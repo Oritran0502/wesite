@@ -43,7 +43,7 @@
     .btn-google:hover { background: #f9f9f9; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
     .btn-google svg { width: 20px; height: 20px; }
 
-    .link-btn { background: none; color: var(--green); font-size: 14px; padding: 4px 0; margin: 0; font-weight: 600; text-decoration: underline; }
+    .link-btn { background: none; color: var(--green); font-size: 14px; padding: 4px 0; margin: 0; font-weight: 600; text-decoration: underline; display: block; margin-top: 8px; }
     .link-btn:hover { transform: none; box-shadow: none; }
 
     .divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; color: var(--muted); font-size: 13px; }
@@ -93,6 +93,8 @@
     .direction-row button { background: white; color: var(--green-dark); border: 1px solid #bbf7d0; box-shadow: none; }
     .direction-row button.active { background: var(--green); color: white; }
     .ai-box { background: #f0fdf4; border: 1px solid #86efac; padding: 16px; border-radius: 18px; margin-top: 14px; white-space: pre-line; }
+.page-btn { background: white; color: var(--green-dark); border: 1px solid #bbf7d0; box-shadow: none; padding: 8px 14px; }
+.page-btn.active { background: var(--green); color: white; }
     .name-display { display: flex; align-items: center; gap: 10px; background: var(--green-soft); padding: 8px 14px; border-radius: 12px; margin-bottom: 16px; }
     .name-display span { font-weight: 700; color: var(--green-dark); }
     .name-display button { background: transparent; color: var(--green); font-size: 13px; padding: 4px 10px; border: 1px solid #bbf7d0; }
@@ -210,26 +212,35 @@
           <h2>Hôm nay mình học gì?</h2>
           <p>Tập trung vào từ vựng, ngữ pháp, luyện dịch và nghiệp vụ công việc.</p>
         </div>
-<div class="grid">
-  <div class="card stat"><strong id="statVocab">0</strong><span>Từ vựng đã lưu</span></div>
-  <div class="card stat"><strong id="statGrammar">0</strong><span>Ngữ pháp đã lưu</span></div>
-  <div class="card stat"><strong id="statWork">0</strong><span>Nghiệp vụ công việc</span></div>
-</div>
 
-<div class="card">
-  <h3>Hoạt động gần đây</h3>
-  <div id="recentActivity" class="list"></div>
-  <button onclick="toggleRecentView()" id="recentToggleBtn" style="margin-top:10px;">Xem thêm</button>
+<div class="grid" style="grid-template-columns: repeat(5, 1fr);">
+  <div class="card stat">
+    <strong id="statVocab">0</strong><span>Từ vựng đã lưu</span>
+    <button class="link-btn" onclick="showDetailPage('vocab')">Xem chi tiết →</button>
+  </div>
+  <div class="card stat">
+    <strong id="statParagraph">0</strong><span>Đoạn văn đã lưu</span>
+    <button class="link-btn" onclick="showDetailPage('paragraph')">Xem chi tiết →</button>
+  </div>
+  <div class="card stat">
+    <strong id="statGrammar">0</strong><span>Ngữ pháp đã lưu</span>
+    <button class="link-btn" onclick="showDetailPage('grammar')">Xem chi tiết →</button>
+  </div>
+  <div class="card stat">
+    <strong id="statVideo">0</strong><span>Video đã lưu</span>
+    <button class="link-btn" onclick="showDetailPage('video')">Xem chi tiết →</button>
+  </div>
+  <div class="card stat">
+    <strong id="statWork">0</strong><span>Nghiệp vụ đã lưu</span>
+    <button class="link-btn" onclick="showDetailPage('work')">Xem chi tiết →</button>
+  </div>
 </div>
 
 <div class="card">
   <h3>Gợi ý phát triển tiếp</h3>
   <p class="muted">Sau khi anh duyệt flow này, mình sẽ nối API AI và MCP.</p>
 </div>
-        <div class="card">
-          <h3>Gợi ý phát triển tiếp</h3>
-          <p class="muted">Sau khi anh duyệt flow này, mình sẽ nối API AI và MCP.</p>
-        </div>
+
       </section>
 
       <section id="language" class="section">
@@ -273,16 +284,54 @@
         </div>
       </section>
 
-      <section id="import" class="section">
-        <div class="card">
-          <h3>Import từ vựng bằng Excel</h3>
-          <p class="muted">Cột gợi ý: language, category, term, pinyin, meaning_vi, example</p>
-          <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" />
-          <button onclick="previewExcel()">Preview Excel</button>
-          <button onclick="saveExcelRows()">Lưu dữ liệu preview</button>
-          <div id="excelPreview"></div>
-        </div>
-      </section>
+<section id="import" class="section">
+  <div class="card">
+    <h3>Import từ vựng bằng Excel</h3>
+    <p class="muted">Chọn ngôn ngữ, cấp độ, kiểu lưu trước khi import.</p>
+
+    <div class="grid two">
+      <div>
+        <label class="muted">Ngôn ngữ <span style="color:var(--red)">*</span></label>
+        <select id="importLanguage">
+          <option value="zh">Tiếng Trung</option>
+          <option value="en">Tiếng Anh</option>
+        </select>
+      </div>
+      <div>
+        <label class="muted">Cấp độ HSK <span style="color:var(--red)">*</span></label>
+        <select id="importHsk">
+          <option value="">-- Chọn cấp độ --</option>
+          <option value="1">HSK 1</option>
+          <option value="2">HSK 2</option>
+          <option value="3">HSK 3</option>
+          <option value="4">HSK 4</option>
+          <option value="5">HSK 5</option>
+          <option value="6">HSK 6</option>
+          <option value="7-9">HSK 7-9</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label class="muted">Kiểu lưu <span style="color:var(--red)">*</span></label>
+      <select id="importSaveType">
+        <option value="general">Từ vựng tổng quan</option>
+        <option value="lesson">Theo bài học / ngày</option>
+      </select>
+    </div>
+
+    <div id="lessonDateWrap" class="hidden">
+     <label class="muted">Tên bài học / ngày học <span style="color:var(--red)">*</span></label>
+      <input id="importLessonName" placeholder="VD: Bài 5 - 30/06/2026" />
+    </div>
+
+    <button onclick="downloadTemplate()" style="background:white; color:var(--green-dark); border:1px solid #bbf7d0; box-shadow:none; margin-top:10px;">📥 Tải template mẫu (.xlsx)</button>
+    <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" />
+    <button onclick="previewExcel()">Preview Excel</button>
+    <button onclick="saveExcelRows()">Lưu dữ liệu preview</button>
+    <div id="excelPreview"></div>
+  </div>
+</section>  
 
       <section id="review" class="section">
         <div class="tabs">
@@ -303,7 +352,12 @@
             </div>
             <textarea id="translateInput" placeholder="Nhập câu/đoạn cần luyện dịch"></textarea>
             <textarea id="translateAnswer" placeholder="Nhập bản dịch của anh"></textarea>
-            <button id="translateBtn" onclick="mockAI('translate')">AI chấm bản dịch tiếng Trung</button>
+            <button id="translateBtn" onclick="callAI('translate', {
+  lang: reviewLanguage,
+  direction: translateDirection,
+  source: document.getElementById('translateInput').value,
+  answer: document.getElementById('translateAnswer').value
+}, 'translateAI', this)">AI chấm bản dịch </button>
             <div id="translateAI" class="ai-box hidden"></div>
           </div>
         </div>
@@ -312,7 +366,10 @@
             <h3>Đặt câu</h3>
             <input id="sentenceWord" placeholder="Nhập từ/ngữ pháp muốn đặt câu" />
             <textarea id="sentenceInput" placeholder="Anh đặt câu ở đây"></textarea>
-            <button onclick="mockAI('sentence')">AI sửa câu</button>
+            <button onclick="callAI('sentence', {
+  word: document.getElementById('sentenceWord').value,
+  sentence: document.getElementById('sentenceInput').value
+}, 'sentenceAI', this)">AI sửa câu</button>
             <div id="sentenceAI" class="ai-box hidden"></div>
           </div>
           <div class="card">
@@ -335,7 +392,12 @@
             <h3>AI hỗ trợ nghiệp vụ</h3>
             <select id="workSelect"></select>
             <textarea id="workQuestion" placeholder="Nhập case cần AI hỗ trợ"></textarea>
-            <button onclick="mockAI('work')">Hỏi AI hỗ trợ</button>
+            <button onclick="callAI('work', {
+  title: document.getElementById('workSelect').value,
+  process: works.find(w => w.title === document.getElementById('workSelect').value)?.process || '',
+  faq: works.find(w => w.title === document.getElementById('workSelect').value)?.faq || '',
+  question: document.getElementById('workQuestion').value
+}, 'workAI', this)">Hỏi AI hỗ trợ</button>
             <div id="workAI" class="ai-box hidden"></div>
           </div>
         </div>
@@ -344,6 +406,32 @@
           <div id="workList" class="list"></div>
         </div>
       </section>
+
+      <section id="detailPage" class="section">
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+      <h3 id="detailTitle">Danh sách</h3>
+      <button onclick="backFromDetail()">← Quay lại</button>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin:14px 0;">
+      <select id="detailLangFilter" style="flex:1; min-width:140px;" onchange="renderDetailList()">
+        <option value="zh">Tiếng Trung</option>
+        <option value="en">Tiếng Anh</option>
+      </select>
+      <input id="detailSearch" placeholder="Tìm kiếm..." style="flex:2; min-width:200px;" oninput="renderDetailList()" />
+      <select id="detailPageSize" style="flex:1; min-width:120px;" onchange="renderDetailList()">
+        <option value="5">5 / trang</option>
+        <option value="10" selected>10 / trang</option>
+        <option value="20">20 / trang</option>
+        <option value="50">50 / trang</option>
+      </select>
+    </div>
+    <div id="detailList" class="list"></div>
+    <div id="detailPagination" style="display:flex; gap:8px; justify-content:center; margin-top:16px; flex-wrap:wrap;"></div>
+  </div>
+</section>
+
+   
     </section>
   </main>
 
@@ -422,30 +510,38 @@
     }
 
     // ==================== ĐĂNG NHẬP EMAIL ====================
-    async function loginEmail() {
-      const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value;
-      const btn = document.getElementById("loginBtn");
+   async function loginEmail() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+  const btn = document.getElementById("loginBtn");
 
-      hideMsg("loginError"); hideMsg("loginSuccess");
+  hideMsg("loginError"); hideMsg("loginSuccess");
 
-      if (!email || !password) return showMsg("loginError", "Nhập email và mật khẩu.");
+  if (!email || !password) return showMsg("loginError", "Nhập email và mật khẩu.");
 
-      btn.disabled = true;
-      btn.innerHTML = '<span class="spinner"></span> Đang đăng nhập...';
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Đang đăng nhập...';
 
-      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
 
-      btn.disabled = false;
-      btn.textContent = "Đăng nhập";
+  if (error) {
+    btn.disabled = false;
+    btn.textContent = "Đăng nhập";
+    return showMsg("loginError", error.message);
+  }
 
-      if (error) return showMsg("loginError", error.message);
+  currentUser = data.user;
 
-      currentUser = data.user;
-      await loadOrCreateProfile();
-      await loadDataFromBackend();
-      showApp();
-    }
+  // Giữ loading khi đang tải dữ liệu từ backend
+  btn.innerHTML = '<span class="spinner"></span> Đang tải dữ liệu...';
+
+  await loadOrCreateProfile();
+  await loadDataFromBackend();
+  showApp();
+
+  btn.disabled = false;
+  btn.textContent = "Đăng nhập";
+}
 
     // ==================== ĐĂNG NHẬP GOOGLE ====================
     async function loginGoogle() {
@@ -479,6 +575,28 @@
 
       showMsg("forgotSuccess", "Đã gửi! Kiểm tra hộp thư (có thể ở mục Spam).");
     }
+
+// ==================== ĐĂNG XUẤT ====================
+async function logout() {
+  const confirmLogout = confirm("Bạn có chắc muốn đăng xuất không?");
+  if (!confirmLogout) return;
+
+  const { error } = await sb.auth.signOut();
+  if (error) {
+    alert("Lỗi đăng xuất: " + error.message);
+    return;
+  }
+
+  // Reset state
+  currentUser = null;
+  currentProfile = null;
+  vocab = []; grammar = []; paragraphs = []; videos = []; works = [];
+
+  document.getElementById("app").classList.add("hidden");
+  document.getElementById("authPage").classList.remove("hidden");
+  showForm("login");
+}
+
 
 // ==================== LOAD PROFILE - SỬA LẠI ====================
 async function loadOrCreateProfile(inputName) {
@@ -561,12 +679,17 @@ async function loadDataFromBackend() {
 
     // ==================== SECTIONS ====================
     function showSection(id, btn) {
-      document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
-      document.getElementById(id).classList.add("active");
-      document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
-      if (btn) btn.classList.add("active");
-      renderAll();
-    }
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  document.querySelectorAll(".nav button").forEach(b => b.classList.remove("active"));
+  if (btn) {
+    btn.classList.add("active");
+  } else {
+    const navBtn = [...document.querySelectorAll(".nav button")].find(b => b.getAttribute("onclick")?.includes(`'${id}'`));
+    if (navBtn) navBtn.classList.add("active");
+  }
+  renderAll();
+}
 
     function setLanguage(lang, btn) {
       currentLanguage = lang;
@@ -593,7 +716,6 @@ async function loadDataFromBackend() {
     function renderAll() {
   renderStats(); renderLanguageList(); renderFlashcard();
   renderGrammarReview(); renderTranslateUI(); renderWork();
-  renderRecentActivity();
 }
 let showAllRecent = false;
 
@@ -627,23 +749,25 @@ function renderRecentActivity() {
     : "<p class='muted'>Chưa có hoạt động nào.</p>";
 }
     function renderStats() {
-      document.getElementById("statVocab").innerText = vocab.filter(owner).length;
-      document.getElementById("statGrammar").innerText = grammar.filter(owner).length;
-      document.getElementById("statWork").innerText = works.filter(owner).length;
-    }
+  document.getElementById("statVocab").innerText = vocab.filter(owner).length;
+  document.getElementById("statParagraph").innerText = paragraphs.filter(owner).length;
+  document.getElementById("statGrammar").innerText = grammar.filter(owner).length;
+  document.getElementById("statVideo").innerText = videos.filter(owner).length;
+  document.getElementById("statWork").innerText = works.filter(owner).length;
+}
 
-    function renderLanguageList() {
-      const el = document.getElementById("languageList");
-      const mv = vocab.filter(x => owner(x) && x.language === currentLanguage);
-      const mg = grammar.filter(x => owner(x) && x.language === currentLanguage);
-      const mp = paragraphs.filter(x => owner(x) && x.language === currentLanguage);
-      const mvi = videos.filter(x => owner(x) && x.language === currentLanguage);
-      el.innerHTML = `
-        <div class="item"><div class="item-title">Từ vựng (${mv.length})</div>${mv.slice(0,5).map(x=>`${x.term} - ${x.meaning_vi}`).join("<br>")||"Chưa có"}</div>
-        <div class="item"><div class="item-title">Ngữ pháp (${mg.length})</div>${mg.slice(0,5).map(x=>x.title).join("<br>")||"Chưa có"}</div>
-        <div class="item"><div class="item-title">Đoạn văn (${mp.length})</div>${mp.slice(0,3).map(x=>(x.content||"").slice(0,120)+"...").join("<br>")||"Chưa có"}</div>
-        <div class="item"><div class="item-title">Video (${mvi.length})</div>${mvi.slice(0,5).map(x=>`<a href="${x.url}" target="_blank">${x.title}</a>`).join("<br>")||"Chưa có"}</div>`;
-    }
+   function renderLanguageList() {
+  const el = document.getElementById("languageList");
+  const mv = vocab.filter(x => owner(x) && x.language === currentLanguage);
+  const mg = grammar.filter(x => owner(x) && x.language === currentLanguage);
+  const mp = paragraphs.filter(x => owner(x) && x.language === currentLanguage);
+  const mvi = videos.filter(x => owner(x) && x.language === currentLanguage);
+  el.innerHTML = `
+    <div class="item"><div class="item-title">Từ vựng (${mv.length})</div>${mv.slice(0,3).map(x=>`${x.term} - ${x.meaning_vi}`).join("<br>")||"Chưa có"}<br><button class="link-btn" onclick="showDetailPage('vocab')">Xem chi tiết →</button></div>
+    <div class="item"><div class="item-title">Ngữ pháp (${mg.length})</div>${mg.slice(0,3).map(x=>x.title).join("<br>")||"Chưa có"}<br><button class="link-btn" onclick="showDetailPage('grammar')">Xem chi tiết →</button></div>
+    <div class="item"><div class="item-title">Đoạn văn (${mp.length})</div>${mp.slice(0,3).map(x=>(x.content||"").slice(0,120)+"...").join("<br>")||"Chưa có"}<br><button class="link-btn" onclick="showDetailPage('paragraph')">Xem chi tiết →</button></div>
+    <div class="item"><div class="item-title">Video (${mvi.length})</div>${mvi.slice(0,3).map(x=>`<a href="${x.url}" target="_blank">${x.title}</a>`).join("<br>")||"Chưa có"}<br><button class="link-btn" onclick="showDetailPage('video')">Xem chi tiết →</button></div>`;
+}
 
     function renderFlashcard() {
       const card = document.getElementById("flashcard");
@@ -698,15 +822,130 @@ function renderRecentActivity() {
       }
     }
 
-    function renderWork() {
-      const mw = works.filter(owner);
-      document.getElementById("workList").innerHTML = mw.length
-        ? mw.map(w => `<div class="item"><div class="item-title">${w.title}</div><b>Quy trình:</b><br>${w.process||"Chưa có"}<br><br><b>FAQ:</b><br>${w.faq||"Chưa có"}</div>`).join("")
-        : "<p class='muted'>Chưa có nghiệp vụ.</p>";
-      document.getElementById("workSelect").innerHTML = mw.length
-        ? mw.map(w => `<option value="${w.title}">${w.title}</option>`).join("")
-        : "<option>Chưa có nghiệp vụ</option>";
+   function renderWork() {
+  const mw = works.filter(owner);
+  document.getElementById("workList").innerHTML = mw.length
+    ? mw.slice(0,3).map(w => `<div class="item"><div class="item-title">${w.title}</div><b>Quy trình:</b><br>${w.process||"Chưa có"}<br><br><b>FAQ:</b><br>${w.faq||"Chưa có"}</div>`).join("") + `<button class="link-btn" onclick="showDetailPage('work')">Xem chi tiết →</button>`
+    : "<p class='muted'>Chưa có nghiệp vụ.</p>";
+  document.getElementById("workSelect").innerHTML = mw.length
+    ? mw.map(w => `<option value="${w.title}">${w.title}</option>`).join("")
+    : "<option>Chưa có nghiệp vụ</option>";
+}
+
+// ==================== DETAIL PAGE (dùng chung 5 loại) ====================
+let detailState = { type: null, page: 1 };
+
+function getDetailData(type) {
+  const map = {
+    vocab:     { data: vocab.filter(owner),      label: "Từ vựng",  fields: x => `<b>${x.term}</b> — ${x.meaning_vi}${x.pinyin ? " (" + x.pinyin + ")" : ""}${x.example ? "<br><span class='muted'>" + x.example + "</span>" : ""}` },
+    grammar:   { data: grammar.filter(owner),     label: "Ngữ pháp", fields: x => `<b>${x.title}</b><br>${x.explanation||""}<br><span class='muted'>${x.example||""}</span>` },
+    paragraph: { data: paragraphs.filter(owner),  label: "Đoạn văn", fields: x => `${(x.content||"").slice(0,200)}${(x.content||"").length>200?"...":""}` },
+    video:     { data: videos.filter(owner),      label: "Video",    fields: x => `<a href="${x.url}" target="_blank">${x.title}</a>` },
+    work:      { data: works.filter(owner),       label: "Nghiệp vụ",fields: x => `<b>${x.title}</b><br><b>Quy trình:</b> ${x.process||"Chưa có"}<br><b>FAQ:</b> ${x.faq||"Chưa có"}` }
+  };
+  return map[type];
+}
+
+function showDetailPage(type) {
+  detailState = { type, page: 1 };
+  document.getElementById("detailSearch").value = "";
+  document.getElementById("detailTitle").innerText = "Danh sách: " + getDetailData(type).label;
+
+  const langFilter = document.getElementById("detailLangFilter");
+  if (type === "work") {
+    langFilter.classList.add("hidden");
+  } else {
+    langFilter.classList.remove("hidden");
+    langFilter.value = currentLanguage || "zh";
+  }
+
+  document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
+  document.getElementById("detailPage").classList.add("active");
+  renderDetailList();
+}
+
+function backFromDetail() {
+  const backMap = { vocab: "language", grammar: "language", paragraph: "language", video: "language", work: "work" };
+  const navId = backMap[detailState.type] || "dashboard";
+  const navBtn = [...document.querySelectorAll(".nav button")].find(b => b.getAttribute("onclick")?.includes(`'${navId}'`));
+  showSection(navId, navBtn);
+}
+
+function renderDetailList() {
+  const { type } = detailState;
+  if (!type) return;
+  const { data, fields } = getDetailData(type);
+  const search = document.getElementById("detailSearch").value.trim().toLowerCase();
+  const pageSize = parseInt(document.getElementById("detailPageSize").value);
+
+  let filtered = data;
+
+  if (type !== "work") {
+    const lang = document.getElementById("detailLangFilter").value;
+    filtered = filtered.filter(x => x.language === lang);
+  }
+
+  if (search) {
+    filtered = filtered.filter(x => JSON.stringify(x).toLowerCase().includes(search));
+  }
+  filtered = filtered.slice().sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  if (detailState.page > totalPages) detailState.page = totalPages;
+  const start = (detailState.page - 1) * pageSize;
+  const pageItems = filtered.slice(start, start + pageSize);
+
+  const el = document.getElementById("detailList");
+
+  if (type === "vocab") {
+    if (!pageItems.length) {
+      el.innerHTML = "<p class='muted'>Không có dữ liệu.</p>";
+    } else {
+      const prefix = (x) => (x.language === "en" ? "EN" : "ZH");
+      el.innerHTML = `<table>
+        <thead><tr>
+          <th>ID từ</th><th>Từ vựng</th><th>Phiên âm</th><th>Nghĩa</th><th>Loại từ / Ghi chú</th><th>Ví dụ</th><th>Đã học</th>
+        </tr></thead>
+        <tbody>
+          ${pageItems.map((x, i) => {
+            const globalIndex = start + i;
+            const id = prefix(x) + String(globalIndex + 1).padStart(3, "0");
+            return `<tr>
+              <td>${id}</td>
+              <td>${x.term||""}</td>
+              <td>${x.pinyin||""}</td>
+              <td>${x.meaning_vi||""}</td>
+              <td>${x.grammar_note||""}</td>
+              <td>${x.example||""}</td>
+              <td style="text-align:center;"><input type="checkbox" ${x.learned ? "checked" : ""} onchange="toggleLearned('${x.id}', this.checked)" /></td>
+            </tr>`;
+          }).join("")}
+        </tbody>
+      </table>`;
     }
+  } else {
+    el.innerHTML = pageItems.length
+      ? pageItems.map(x => `<div class="item">${fields(x)}</div>`).join("")
+      : "<p class='muted'>Không có dữ liệu.</p>";
+  }
+
+  renderDetailPagination(totalPages);
+}
+
+function renderDetailPagination(totalPages) {
+  const el = document.getElementById("detailPagination");
+  if (totalPages <= 1) { el.innerHTML = ""; return; }
+  let html = "";
+  for (let i = 1; i <= totalPages; i++) {
+    html += `<button class="page-btn ${i === detailState.page ? "active" : ""}" onclick="goToDetailPage(${i})">${i}</button>`;
+  }
+  el.innerHTML = html;
+}
+
+function goToDetailPage(p) {
+  detailState.page = p;
+  renderDetailList();
+}
 
     // ==================== ADD DATA ====================
     async function addVocab() {
@@ -756,7 +995,13 @@ function renderRecentActivity() {
     }
 
     // ==================== EXCEL ====================
-    async function previewExcel() {
+document.addEventListener("change", function(e) {
+  if (e.target.id === "importSaveType") {
+    document.getElementById("lessonDateWrap").classList.toggle("hidden", e.target.value !== "lesson");
+  }
+});
+   
+ async function previewExcel() {
       const file = document.getElementById("excelFile").files[0];
       if (!file) return alert("Chọn file Excel.");
       const data = await file.arrayBuffer();
@@ -767,28 +1012,76 @@ function renderRecentActivity() {
       const h = Object.keys(previewRows[0]);
       document.getElementById("excelPreview").innerHTML = `<p class="muted">Preview ${previewRows.length} dòng (tối đa 10).</p><table><thead><tr>${h.map(k=>`<th>${k}</th>`).join("")}</tr></thead><tbody>${previewRows.slice(0,10).map(r=>"<tr>"+h.map(k=>`<td>${r[k]||""}</td>`).join("")+"</tr>").join("")}</tbody></table>`;
     }
+function downloadTemplate() {
+  const headers = ["ID từ", "HSK", "Từ tiếng trung", "Phiên âm", "Loại từ", "Nghĩa tiếng việt", "Đặt câu", "Phiên âm câu", "Dịch tiếng việt câu"];
+  const sample = [
+    ["H10001", 1, "爱", "ài", "Động từ", "Yêu; thương; yêu quý", "爸爸爱妈妈。", "Bàba ài māma", "Ba yêu mẹ."],
+    ["H10002", 1, "爱好", "àihào", "Động từ", "Yêu thích; yêu chuộng", "我爱好打篮球。", "Wǒ àihào dǎ lánqiú", "Tôi thích chơi bóng rổ."]
+  ];
 
+  const ws = XLSX.utils.aoa_to_sheet([headers, ...sample]);
+  ws['!cols'] = headers.map(() => ({ wch: 18 }));
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Template");
+  XLSX.writeFile(wb, "Template_Import_TuVung.xlsx");
+}
     async function saveExcelRows() {
-      if (!previewRows.length) return alert("Chưa preview.");
-      const mapped = previewRows.map(r => ({ user_id: currentUser.id, language: r.language||r.Language||currentLanguage, category: r.category||r.Category||"excel", term: r.term||r.hanzi||r.word||r.Word||"", pinyin: r.pinyin||"", meaning_vi: r.meaning_vi||r.meaning||r.vi||"", example: r.example||"", grammar_note: r.grammar_note||"", video_link: r.video_link||"" })).filter(x => x.term && x.meaning_vi);
-      if (!mapped.length) return alert("Không có dòng hợp lệ.");
-      const { error } = await sb.from("vocabulary_items").insert(mapped);
-      if (error) return alert("Lỗi: " + error.message);
-      previewRows = []; document.getElementById("excelPreview").innerHTML = ""; document.getElementById("excelFile").value = "";
-      await loadDataFromBackend(); alert("Đã lưu " + mapped.length + " dòng.");
-    }
+  if (!previewRows.length) return alert("Chưa preview.");
 
-    // ==================== MOCK AI ====================
-    function mockAI(type) {
-      const res = {
-        translate: "AI mock - Chấm dịch " + (reviewLanguage==="zh"?"tiếng Trung":"tiếng Anh") + "\n- Chiều: " + (translateDirection==="to_vi"?"Ngoại → Việt":"Việt → Ngoại") + "\n- Kiểm tra: đúng nghĩa, tự nhiên, ngữ pháp, sắc thái.\n- Sau này sẽ gọi API AI thật.",
-        sentence: "AI mock:\n- Sửa lỗi từ vựng/ngữ pháp.\n- Đưa thêm 2 câu tự nhiên hơn.",
-        work: "AI mock:\n- Đọc nghiệp vụ đang chọn và gợi ý hướng xử lý.\n- Sau này dùng API/MCP truy xuất dữ liệu thật."
-      };
-      const target = type==="translate"?"translateAI":type==="sentence"?"sentenceAI":"workAI";
-      document.getElementById(target).classList.remove("hidden");
-      document.getElementById(target).innerText = res[type];
-    }
+  const lang = document.getElementById("importLanguage").value;
+  const hsk = document.getElementById("importHsk").value;
+  const saveType = document.getElementById("importSaveType").value;
+  const lessonName = document.getElementById("importLessonName").value.trim();
+
+  if (!hsk) return alert("Chọn cấp độ HSK trước khi lưu.");
+  if (saveType === "lesson" && !lessonName) return alert("Nhập tên bài học / ngày học.");
+
+  const mapped = previewRows.map(r => ({
+    user_id: currentUser.id,
+    language: lang,
+    category: saveType === "lesson" ? lessonName : "Từ vựng tổng quan",
+    term: r.term || r.hanzi || r.word || r.Word || r["Từ tiếng trung"] || r["Word"] || "",
+    pinyin: r.pinyin || r["Phiên âm"] || r["Pronunciation"] || "",
+    meaning_vi: r.meaning_vi || r.meaning || r.vi || r["Nghĩa tiếng việt"] || r["Meaning"] || "",
+    example: r.example || r["Đặt câu"] || r["Example"] || "",
+    grammar_note: hsk,
+    video_link: ""
+  })).filter(x => x.term);
+
+  if (!mapped.length) return alert("Không có dòng hợp lệ (thiếu cột từ vựng).");
+
+  const { error } = await sb.from("vocabulary_items").insert(mapped);
+  if (error) return alert("Lỗi: " + error.message);
+
+  previewRows = [];
+  document.getElementById("excelPreview").innerHTML = "";
+  document.getElementById("excelFile").value = "";
+  await loadDataFromBackend();
+  alert("Đã lưu " + mapped.length + " dòng vào " + (lang === "zh" ? "Tiếng Trung" : "Tiếng Anh") + ".");
+}
+
+async function callAI(type, payload, targetId, btn) {
+  const target = document.getElementById(targetId);
+  const originalText = btn.innerText;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Đang hỏi AI...';
+  target.classList.remove("hidden");
+  target.innerText = "Đang xử lý...";
+
+  try {
+    const { data, error } = await sb.functions.invoke("ai", {
+      body: { type, payload }
+    });
+    if (error) throw error;
+    target.innerText = data.text;
+  } catch (e) {
+    target.innerText = "Lỗi gọi AI: " + e.message;
+  } finally {
+    btn.disabled = false;
+    btn.innerText = originalText;
+  }
+}
 
     // ==================== INIT ====================
     window.onload = async function() {
