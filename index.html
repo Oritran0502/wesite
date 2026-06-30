@@ -6,6 +6,8 @@
   <title>Green Learning Hub</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
   <style>
     :root {
       --green: #16a34a;
@@ -118,7 +120,7 @@
     <div id="loginForm" class="login-card">
       <div class="logo">绿</div>
       <h1>Green Learning Hub</h1>
-      <p class="hint">Đăng nhập để bắt đầu nhé !!</p>
+      <p class="hint">Đăng nhập để bắt đầu nhé!!</p>
 
       <div id="loginError" class="msg-box msg-error"></div>
       <div id="loginSuccess" class="msg-box msg-success"></div>
@@ -144,7 +146,7 @@
     <div id="registerForm" class="login-card hidden">
       <div class="logo">绿</div>
       <h1>Đăng ký</h1>
-      <p class="hint">Tạo tài khoản mới để bắt đầu nè!!</p>
+      <p class="hint">Tạo tài khoản mới để bắt đầu !!</p>
 
       <div id="regError" class="msg-box msg-error"></div>
       <div id="regSuccess" class="msg-box msg-success"></div>
@@ -210,7 +212,7 @@
       <section id="dashboard" class="section active">
         <div class="hero">
           <h2>Hôm nay mình sẽ làm gì?</h2>
-          <p>Tập trung vào từ vựng, ngữ pháp, luyện dịch hay  nghiệp vụ công việc.</p>
+          <p>Tập trung vào từ vựng, ngữ pháp, luyện dịch và nghiệp vụ công việc.</p>
         </div>
 
 <div class="grid" style="grid-template-columns: repeat(5, 1fr);">
@@ -238,7 +240,7 @@
 
 <div class="card">
   <h3>Gợi ý phát triển tiếp</h3>
-  <p class="muted">Coming soon.</p>
+  <p class="muted">Sau khi anh duyệt flow này, mình sẽ nối API AI và MCP.</p>
 </div>
 
       </section>
@@ -384,9 +386,18 @@
           <div class="card">
             <h3>Thêm nghiệp vụ công việc</h3>
             <input id="workName" placeholder="Tên nghiệp vụ: Bind Meta / TikTok / Appeal..." />
-            <textarea id="workProcess" placeholder="Quy trình xử lý"></textarea>
-            <textarea id="workFAQ" placeholder="FAQ / lỗi thường gặp / lưu ý"></textarea>
-            <button onclick="addWork()">Lưu nghiệp vụ</button>
+
+<label class="muted">Quy trình xử lý</label>
+<div id="workProcessEditor" style="height:250px; background:white;"></div>
+
+<br>
+
+<label class="muted">FAQ / lỗi thường gặp / lưu ý</label>
+<div id="workFAQEditor" style="height:180px; background:white;"></div>
+
+<br>
+
+<button onclick="addWork()">Lưu nghiệp vụ</button>
           </div>
           <div class="card">
             <h3>AI hỗ trợ nghiệp vụ</h3>
@@ -450,6 +461,8 @@
     let flashIndex = 0;
     let flashFlipped = false;
     let vocab = [], grammar = [], paragraphs = [], videos = [], works = [];
+let workProcessEditor = null;
+let workFAQEditor = null;
 
     // ==================== AUTH FORMS ====================
     function showForm(name) {
@@ -653,6 +666,10 @@ function owner(x) {
   return currentUser && x.user_id === currentUser.id;
 }
 
+function visible(x) {
+  return owner(x) && !x.deleted;
+}
+
 // ==================== LOAD DATA - SỬA LẠI ====================
 async function loadDataFromBackend() {
   try {
@@ -749,19 +766,19 @@ function renderRecentActivity() {
     : "<p class='muted'>Chưa có hoạt động nào.</p>";
 }
     function renderStats() {
-  document.getElementById("statVocab").innerText = vocab.filter(owner).length;
-  document.getElementById("statParagraph").innerText = paragraphs.filter(owner).length;
-  document.getElementById("statGrammar").innerText = grammar.filter(owner).length;
-  document.getElementById("statVideo").innerText = videos.filter(owner).length;
-  document.getElementById("statWork").innerText = works.filter(owner).length;
+  document.getElementById("statVocab").innerText = vocab.filter(visible).length;
+  document.getElementById("statParagraph").innerText = paragraphs.filter(visible).length;
+  document.getElementById("statGrammar").innerText = grammar.filter(visible).length;
+  document.getElementById("statVideo").innerText = videos.filter(visible).length;
+  document.getElementById("statWork").innerText = works.filter(visible).length;
 }
 
-   function renderLanguageList() {
+function renderLanguageList() {
   const el = document.getElementById("languageList");
-  const mv = vocab.filter(x => owner(x) && x.language === currentLanguage);
-  const mg = grammar.filter(x => owner(x) && x.language === currentLanguage);
-  const mp = paragraphs.filter(x => owner(x) && x.language === currentLanguage);
-  const mvi = videos.filter(x => owner(x) && x.language === currentLanguage);
+  const mv = vocab.filter(x => visible(x) && x.language === currentLanguage);
+  const mg = grammar.filter(x => visible(x) && x.language === currentLanguage);
+  const mp = paragraphs.filter(x => visible(x) && x.language === currentLanguage);
+  const mvi = videos.filter(x => visible(x) && x.language === currentLanguage);
   el.innerHTML = `
     <div class="item"><div class="item-title">Từ vựng (${mv.length})</div>${mv.slice(0,3).map(x=>`${x.term} - ${x.meaning_vi}`).join("<br>")||"Chưa có"}<br><button class="link-btn" onclick="showDetailPage('vocab')">Xem chi tiết →</button></div>
     <div class="item"><div class="item-title">Ngữ pháp (${mg.length})</div>${mg.slice(0,3).map(x=>x.title).join("<br>")||"Chưa có"}<br><button class="link-btn" onclick="showDetailPage('grammar')">Xem chi tiết →</button></div>
@@ -769,37 +786,38 @@ function renderRecentActivity() {
     <div class="item"><div class="item-title">Video (${mvi.length})</div>${mvi.slice(0,3).map(x=>`<a href="${x.url}" target="_blank">${x.title}</a>`).join("<br>")||"Chưa có"}<br><button class="link-btn" onclick="showDetailPage('video')">Xem chi tiết →</button></div>`;
 }
 
-    function renderFlashcard() {
-      const card = document.getElementById("flashcard");
-      const mv = vocab.filter(x => owner(x) && x.language === reviewLanguage);
-      const label = reviewLanguage === "zh" ? "Tiếng Trung" : "Tiếng Anh";
-      document.getElementById("flashcardTitle").innerText = "Flashcard từ vựng - " + label;
-      if (!mv.length) { card.innerText = "Chưa có từ để ôn " + label; return; }
-      if (flashIndex >= mv.length) flashIndex = 0;
-      const item = mv[flashIndex];
-      card.innerHTML = flashFlipped
-        ? `${item.meaning_vi||""}<small>${item.pinyin||""}</small><small>${item.example||""}</small>`
-        : item.term;
-    }
+function renderFlashcard() {
+  const card = document.getElementById("flashcard");
+  const mv = vocab.filter(x => visible(x) && x.language === reviewLanguage);
+  const label = reviewLanguage === "zh" ? "Tiếng Trung" : "Tiếng Anh";
+  document.getElementById("flashcardTitle").innerText = "Flashcard từ vựng - " + label;
+  if (!mv.length) { card.innerText = "Chưa có từ để ôn " + label; return; }
+  if (flashIndex >= mv.length) flashIndex = 0;
+  const item = mv[flashIndex];
+  card.innerHTML = flashFlipped
+    ? `${item.meaning_vi||""}<small>${item.pinyin||""}</small><small>${item.example||""}</small>`
+    : item.term;
+}
 
-    function flipCard() { flashFlipped = !flashFlipped; renderFlashcard(); }
-    function nextCard() {
-      const mv = vocab.filter(x => owner(x) && x.language === reviewLanguage);
-      if (!mv.length) return;
-      flashIndex = (flashIndex + 1) % mv.length;
-      flashFlipped = false;
-      renderFlashcard();
-    }
+function flipCard() { flashFlipped = !flashFlipped; renderFlashcard(); }
 
-    function renderGrammarReview() {
-      const box = document.getElementById("grammarReviewList");
-      const mg = grammar.filter(x => owner(x) && x.language === reviewLanguage);
-      const label = reviewLanguage === "zh" ? "Tiếng Trung" : "Tiếng Anh";
-      document.getElementById("grammarReviewTitle").innerText = "Ôn ngữ pháp - " + label;
-      box.innerHTML = mg.length
-        ? mg.map(g => `<div class="item"><div class="item-title">${g.title}</div>${g.explanation||""}<br><span class="muted">${g.example||""}</span></div>`).join("")
-        : "<p class='muted'>Chưa có ngữ pháp để ôn.</p>";
-    }
+function nextCard() {
+  const mv = vocab.filter(x => visible(x) && x.language === reviewLanguage);
+  if (!mv.length) return;
+  flashIndex = (flashIndex + 1) % mv.length;
+  flashFlipped = false;
+  renderFlashcard();
+}
+
+function renderGrammarReview() {
+  const box = document.getElementById("grammarReviewList");
+  const mg = grammar.filter(x => visible(x) && x.language === reviewLanguage);
+  const label = reviewLanguage === "zh" ? "Tiếng Trung" : "Tiếng Anh";
+  document.getElementById("grammarReviewTitle").innerText = "Ôn ngữ pháp - " + label;
+  box.innerHTML = mg.length
+    ? mg.map(g => `<div class="item"><div class="item-title">${g.title}</div>${g.explanation||""}<br><span class="muted">${g.example||""}</span></div>`).join("")
+    : "<p class='muted'>Chưa có ngữ pháp để ôn.</p>";
+}
 
     function renderTranslateUI() {
       const label = reviewLanguage === "zh" ? "Tiếng Trung" : "Tiếng Anh";
@@ -822,10 +840,23 @@ function renderRecentActivity() {
       }
     }
 
-   function renderWork() {
-  const mw = works.filter(owner);
+ function renderWork() {
+  const mw = works.filter(visible);
   document.getElementById("workList").innerHTML = mw.length
-    ? mw.slice(0,3).map(w => `<div class="item"><div class="item-title">${w.title}</div><b>Quy trình:</b><br>${w.process||"Chưa có"}<br><br><b>FAQ:</b><br>${w.faq||"Chưa có"}</div>`).join("") + `<button class="link-btn" onclick="showDetailPage('work')">Xem chi tiết →</button>`
+    ? mw.slice(0,3).map(w => `
+      <div class="item">
+        <div style="display:flex; justify-content:space-between; align-items:start; gap:10px;">
+          <div style="flex:1;">
+            <div class="item-title">${w.title}</div>
+            <b>Quy trình:</b><br>${w.process||"Chưa có"}<br><br>
+            <b>FAQ:</b><br>${w.faq||"Chưa có"}
+          </div>
+          <div style="display:flex; gap:6px; flex-shrink:0;">
+            <button onclick="editWork('${w.id}')" title="Sửa" style="padding:8px 10px;">✏️</button>
+            <button onclick="deleteWork('${w.id}')" title="Xóa" style="padding:8px 10px; background:var(--red);">🗑️</button>
+          </div>
+        </div>
+      </div>`).join("") + `<button class="link-btn" onclick="showDetailPage('work')">Xem chi tiết →</button>`
     : "<p class='muted'>Chưa có nghiệp vụ.</p>";
   document.getElementById("workSelect").innerHTML = mw.length
     ? mw.map(w => `<option value="${w.title}">${w.title}</option>`).join("")
@@ -837,12 +868,73 @@ let detailState = { type: null, page: 1 };
 
 function getDetailData(type) {
   const map = {
-    vocab:     { data: vocab.filter(owner),      label: "Từ vựng",  fields: x => `<b>${x.term}</b> — ${x.meaning_vi}${x.pinyin ? " (" + x.pinyin + ")" : ""}${x.example ? "<br><span class='muted'>" + x.example + "</span>" : ""}` },
-    grammar:   { data: grammar.filter(owner),     label: "Ngữ pháp", fields: x => `<b>${x.title}</b><br>${x.explanation||""}<br><span class='muted'>${x.example||""}</span>` },
-    paragraph: { data: paragraphs.filter(owner),  label: "Đoạn văn", fields: x => `${(x.content||"").slice(0,200)}${(x.content||"").length>200?"...":""}` },
-    video:     { data: videos.filter(owner),      label: "Video",    fields: x => `<a href="${x.url}" target="_blank">${x.title}</a>` },
-    work:      { data: works.filter(owner),       label: "Nghiệp vụ",fields: x => `<b>${x.title}</b><br><b>Quy trình:</b> ${x.process||"Chưa có"}<br><b>FAQ:</b> ${x.faq||"Chưa có"}` }
-  };
+    vocab:     { data: vocab.filter(visible),      label: "Từ vựng" },
+    grammar: {
+  data: grammar.filter(visible),
+  label: "Ngữ pháp",
+  fields: x => `
+    <div style="display:flex; justify-content:space-between; gap:10px;">
+      <div style="flex:1;">
+        <b>${x.title}</b><br>
+        ${x.explanation || ""}
+        <br>
+        <span class='muted'>${x.example || ""}</span>
+      </div>
+
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <button onclick="editGrammar('${x.id}')" style="padding:6px 8px;">✏️</button>
+        <button onclick="deleteGrammar('${x.id}')" style="padding:6px 8px; background:var(--red);">🗑️</button>
+      </div>
+    </div>`
+},
+    paragraph: {
+  data: paragraphs.filter(visible),
+  label: "Đoạn văn",
+  fields: x => `
+    <div style="display:flex; justify-content:space-between; gap:10px;">
+      <div style="flex:1;">
+        ${(x.content || "").slice(0,200)}
+      </div>
+
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <button onclick="editParagraph('${x.id}')" style="padding:6px 8px;">✏️</button>
+        <button onclick="deleteParagraph('${x.id}')" style="padding:6px 8px; background:var(--red);">🗑️</button>
+      </div>
+    </div>`
+},
+    video: {
+  data: videos.filter(visible),
+  label: "Video",
+  fields: x => `
+    <div style="display:flex; justify-content:space-between; gap:10px;">
+      <div style="flex:1;">
+        <a href="${x.url}" target="_blank">${x.title}</a>
+      </div>
+
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <button onclick="editVideo('${x.id}')" style="padding:6px 8px;">✏️</button>
+        <button onclick="deleteVideo('${x.id}')" style="padding:6px 8px; background:var(--red);">🗑️</button>
+      </div>
+    </div>`
+},
+    work: {
+  data: works.filter(visible),
+  label: "Nghiệp vụ",
+  fields: x => `
+    <div style="display:flex; justify-content:space-between; gap:10px;">
+      <div style="flex:1;">
+        <b>${x.title}</b><br>
+        <b>Quy trình:</b> ${x.process || "Chưa có"}<br>
+        <b>FAQ:</b> ${x.faq || "Chưa có"}
+      </div>
+
+      <div style="display:flex; gap:6px; flex-shrink:0;">
+        <button onclick="editWork('${x.id}')" style="padding:6px 8px;">✏️</button>
+        <button onclick="deleteWork('${x.id}')" style="padding:6px 8px; background:var(--red);">🗑️</button>
+      </div>
+    </div>`
+}
+};
   return map[type];
 }
 
@@ -903,25 +995,29 @@ function renderDetailList() {
     } else {
       const prefix = (x) => (x.language === "en" ? "EN" : "ZH");
       el.innerHTML = `<table>
-        <thead><tr>
-          <th>ID từ</th><th>Từ vựng</th><th>Phiên âm</th><th>Nghĩa</th><th>Loại từ / Ghi chú</th><th>Ví dụ</th><th>Đã học</th>
-        </tr></thead>
-        <tbody>
-          ${pageItems.map((x, i) => {
-            const globalIndex = start + i;
-            const id = prefix(x) + String(globalIndex + 1).padStart(3, "0");
-            return `<tr>
-              <td>${id}</td>
-              <td>${x.term||""}</td>
-              <td>${x.pinyin||""}</td>
-              <td>${x.meaning_vi||""}</td>
-              <td>${x.grammar_note||""}</td>
-              <td>${x.example||""}</td>
-              <td style="text-align:center;"><input type="checkbox" ${x.learned ? "checked" : ""} onchange="toggleLearned('${x.id}', this.checked)" /></td>
-            </tr>`;
-          }).join("")}
-        </tbody>
-      </table>`;
+  <thead><tr>
+    <th>ID từ</th><th>Từ vựng</th><th>Phiên âm</th><th>Nghĩa</th><th>Loại từ / Ghi chú</th><th>Ví dụ</th><th>Đã học</th><th>Thao tác</th>
+  </tr></thead>
+  <tbody>
+    ${pageItems.map((x, i) => {
+      const globalIndex = start + i;
+      const id = prefix(x) + String(globalIndex + 1).padStart(3, "0");
+      return `<tr>
+        <td>${id}</td>
+        <td>${x.term||""}</td>
+        <td>${x.pinyin||""}</td>
+        <td>${x.meaning_vi||""}</td>
+        <td>${x.grammar_note||""}</td>
+        <td>${x.example||""}</td>
+        <td style="text-align:center;"><input type="checkbox" ${x.learned ? "checked" : ""} onchange="toggleLearned('${x.id}', this.checked)" /></td>
+        <td style="display:flex; gap:6px;">
+          <button onclick="editVocab('${x.id}')" style="padding:6px 8px;">✏️</button>
+          <button onclick="deleteVocab('${x.id}')" style="padding:6px 8px; background:var(--red);">🗑️</button>
+        </td>
+      </tr>`;
+    }).join("")}
+  </tbody>
+</table>`;
     }
   } else {
     el.innerHTML = pageItems.length
@@ -948,51 +1044,217 @@ function goToDetailPage(p) {
 }
 
     // ==================== ADD DATA ====================
-    async function addVocab() {
-      const item = { user_id: currentUser.id, language: currentLanguage, category: "manual", term: document.getElementById("vocabTerm").value.trim(), pinyin: document.getElementById("vocabPinyin").value.trim(), meaning_vi: document.getElementById("vocabMeaning").value.trim(), example: document.getElementById("vocabExample").value.trim() };
-      if (!item.term || !item.meaning_vi) return alert("Nhập từ và nghĩa.");
-      const { error } = await sb.from("vocabulary_items").insert(item);
-      if (error) return alert("Lỗi: " + error.message);
-      ["vocabTerm","vocabPinyin","vocabMeaning","vocabExample"].forEach(id => document.getElementById(id).value = "");
-      await loadDataFromBackend(); alert("Đã lưu từ vựng.");
-    }
+let editingVocabId = null;
 
-    async function addGrammar() {
-      const item = { user_id: currentUser.id, language: currentLanguage, title: document.getElementById("grammarTitle").value.trim(), explanation: document.getElementById("grammarExplain").value.trim(), example: document.getElementById("grammarExample").value.trim() };
-      if (!item.title) return alert("Nhập tên ngữ pháp.");
-      const { error } = await sb.from("grammar_items").insert(item);
-      if (error) return alert("Lỗi: " + error.message);
-      ["grammarTitle","grammarExplain","grammarExample"].forEach(id => document.getElementById(id).value = "");
-      await loadDataFromBackend(); alert("Đã lưu ngữ pháp.");
-    }
+async function addVocab() {
+  const item = { language: currentLanguage, category: "manual", term: document.getElementById("vocabTerm").value.trim(), pinyin: document.getElementById("vocabPinyin").value.trim(), meaning_vi: document.getElementById("vocabMeaning").value.trim(), example: document.getElementById("vocabExample").value.trim() };
+  if (!item.term || !item.meaning_vi) return alert("Nhập từ và nghĩa.");
 
-    async function addParagraph() {
-      const content = document.getElementById("paragraphText").value.trim();
-      if (!content) return;
-      const { error } = await sb.from("paragraph_items").insert({ user_id: currentUser.id, language: currentLanguage, content });
-      if (error) return alert("Lỗi: " + error.message);
-      document.getElementById("paragraphText").value = "";
-      await loadDataFromBackend(); alert("Đã lưu đoạn văn.");
-    }
+  let error;
+  if (editingVocabId) {
+    ({ error } = await sb.from("vocabulary_items").update(item).eq("id", editingVocabId));
+  } else {
+    ({ error } = await sb.from("vocabulary_items").insert({ user_id: currentUser.id, ...item }));
+  }
+  if (error) return alert("Lỗi: " + error.message);
 
-    async function addVideo() {
-      const title = document.getElementById("videoTitle").value.trim();
-      const url = document.getElementById("videoLink").value.trim();
-      if (!title || !url) return;
-      const { error } = await sb.from("video_links").insert({ user_id: currentUser.id, language: currentLanguage, title, url });
-      if (error) return alert("Lỗi: " + error.message);
-      ["videoTitle","videoLink"].forEach(id => document.getElementById(id).value = "");
-      await loadDataFromBackend(); alert("Đã lưu video.");
-    }
+  ["vocabTerm","vocabPinyin","vocabMeaning","vocabExample"].forEach(id => document.getElementById(id).value = "");
+  editingVocabId = null;
+  document.querySelector('button[onclick="addVocab()"]').innerText = "Lưu từ vựng";
+  await loadDataFromBackend(); renderAll();
+  alert("Đã lưu từ vựng.");
+}
 
-    async function addWork() {
-      const item = { user_id: currentUser.id, title: document.getElementById("workName").value.trim(), process: document.getElementById("workProcess").value.trim(), faq: document.getElementById("workFAQ").value.trim() };
-      if (!item.title) return alert("Nhập tên nghiệp vụ.");
-      const { error } = await sb.from("work_processes").insert(item);
-      if (error) return alert("Lỗi: " + error.message);
-      ["workName","workProcess","workFAQ"].forEach(id => document.getElementById(id).value = "");
-      await loadDataFromBackend(); alert("Đã lưu nghiệp vụ.");
-    }
+function editVocab(id) {
+  const v = vocab.find(x => x.id === id);
+  if (!v) return;
+  editingVocabId = id;
+  currentLanguage = v.language;
+  document.getElementById("vocabTerm").value = v.term || "";
+  document.getElementById("vocabPinyin").value = v.pinyin || "";
+  document.getElementById("vocabMeaning").value = v.meaning_vi || "";
+  document.getElementById("vocabExample").value = v.example || "";
+  document.querySelector('button[onclick="addVocab()"]').innerText = "Cập nhật từ vựng";
+  showSection('language', [...document.querySelectorAll(".nav button")].find(b => b.getAttribute("onclick")?.includes("'language'")));
+  document.getElementById("vocabTerm").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+async function deleteVocab(id) {
+  if (!confirm("Xóa từ vựng này? (Vẫn lưu lại trong hệ thống)")) return;
+  const { error } = await sb.from("vocabulary_items").update({ deleted: true }).eq("id", id);
+  if (error) return alert("Lỗi: " + error.message);
+  await loadDataFromBackend(); renderAll();
+  alert("Đã xóa.");
+}
+
+let editingGrammarId = null;
+
+async function addGrammar() {
+  const item = { language: currentLanguage, title: document.getElementById("grammarTitle").value.trim(), explanation: document.getElementById("grammarExplain").value.trim(), example: document.getElementById("grammarExample").value.trim() };
+  if (!item.title) return alert("Nhập tên ngữ pháp.");
+
+  let error;
+  if (editingGrammarId) {
+    ({ error } = await sb.from("grammar_items").update(item).eq("id", editingGrammarId));
+  } else {
+    ({ error } = await sb.from("grammar_items").insert({ user_id: currentUser.id, ...item }));
+  }
+  if (error) return alert("Lỗi: " + error.message);
+
+  ["grammarTitle","grammarExplain","grammarExample"].forEach(id => document.getElementById(id).value = "");
+  editingGrammarId = null;
+  document.querySelector('button[onclick="addGrammar()"]').innerText = "Lưu ngữ pháp";
+  await loadDataFromBackend(); renderAll();
+  alert("Đã lưu ngữ pháp.");
+}
+
+function editGrammar(id) {
+  const g = grammar.find(x => x.id === id);
+  if (!g) return;
+  editingGrammarId = id;
+  currentLanguage = g.language;
+  document.getElementById("grammarTitle").value = g.title || "";
+  document.getElementById("grammarExplain").value = g.explanation || "";
+  document.getElementById("grammarExample").value = g.example || "";
+  document.querySelector('button[onclick="addGrammar()"]').innerText = "Cập nhật ngữ pháp";
+  showSection('language', [...document.querySelectorAll(".nav button")].find(b => b.getAttribute("onclick")?.includes("'language'")));
+}
+
+async function deleteGrammar(id) {
+  if (!confirm("Xóa ngữ pháp này?")) return;
+  const { error } = await sb.from("grammar_items").update({ deleted: true }).eq("id", id);
+  if (error) return alert("Lỗi: " + error.message);
+  await loadDataFromBackend(); renderAll();
+  alert("Đã xóa.");
+}
+
+  let editingParagraphId = null;
+
+async function addParagraph() {
+  const content = document.getElementById("paragraphText").value.trim();
+  if (!content) return;
+
+  let error;
+  if (editingParagraphId) {
+    ({ error } = await sb.from("paragraph_items").update({ language: currentLanguage, content }).eq("id", editingParagraphId));
+  } else {
+    ({ error } = await sb.from("paragraph_items").insert({ user_id: currentUser.id, language: currentLanguage, content }));
+  }
+  if (error) return alert("Lỗi: " + error.message);
+
+  document.getElementById("paragraphText").value = "";
+  editingParagraphId = null;
+  document.querySelector('button[onclick="addParagraph()"]').innerText = "Lưu đoạn văn";
+  await loadDataFromBackend(); renderAll();
+  alert("Đã lưu đoạn văn.");
+}
+
+function editParagraph(id) {
+  const p = paragraphs.find(x => x.id === id);
+  if (!p) return;
+  editingParagraphId = id;
+  currentLanguage = p.language;
+  document.getElementById("paragraphText").value = p.content || "";
+  document.querySelector('button[onclick="addParagraph()"]').innerText = "Cập nhật đoạn văn";
+  showSection('language', [...document.querySelectorAll(".nav button")].find(b => b.getAttribute("onclick")?.includes("'language'")));
+}
+
+async function deleteParagraph(id) {
+  if (!confirm("Xóa đoạn văn này?")) return;
+  const { error } = await sb.from("paragraph_items").update({ deleted: true }).eq("id", id);
+  if (error) return alert("Lỗi: " + error.message);
+  await loadDataFromBackend(); renderAll();
+  alert("Đã xóa.");
+}
+
+let editingVideoId = null;
+
+async function addVideo() {
+  const title = document.getElementById("videoTitle").value.trim();
+  const url = document.getElementById("videoLink").value.trim();
+  if (!title || !url) return;
+
+  let error;
+  if (editingVideoId) {
+    ({ error } = await sb.from("video_links").update({ language: currentLanguage, title, url }).eq("id", editingVideoId));
+  } else {
+    ({ error } = await sb.from("video_links").insert({ user_id: currentUser.id, language: currentLanguage, title, url }));
+  }
+  if (error) return alert("Lỗi: " + error.message);
+
+  ["videoTitle","videoLink"].forEach(id => document.getElementById(id).value = "");
+  editingVideoId = null;
+  document.querySelector('button[onclick="addVideo()"]').innerText = "Lưu video";
+  await loadDataFromBackend(); renderAll();
+  alert("Đã lưu video.");
+}
+
+function editVideo(id) {
+  const v = videos.find(x => x.id === id);
+  if (!v) return;
+  editingVideoId = id;
+  currentLanguage = v.language;
+  document.getElementById("videoTitle").value = v.title || "";
+  document.getElementById("videoLink").value = v.url || "";
+  document.querySelector('button[onclick="addVideo()"]').innerText = "Cập nhật video";
+  showSection('language', [...document.querySelectorAll(".nav button")].find(b => b.getAttribute("onclick")?.includes("'language'")));
+}
+
+async function deleteVideo(id) {
+  if (!confirm("Xóa video này?")) return;
+  const { error } = await sb.from("video_links").update({ deleted: true }).eq("id", id);
+  if (error) return alert("Lỗi: " + error.message);
+  await loadDataFromBackend(); renderAll();
+  alert("Đã xóa.");
+}
+
+async function addWork() {
+  const item = {
+  title: document.getElementById("workName").value.trim(),
+  process: workProcessEditor.root.innerHTML,
+  faq: workFAQEditor.root.innerHTML
+};
+  if (!item.title) return alert("Nhập tên nghiệp vụ.");
+
+  let error;
+  if (editingWorkId) {
+    ({ error } = await sb.from("work_processes").update(item).eq("id", editingWorkId));
+  } else {
+    ({ error } = await sb.from("work_processes").insert({ user_id: currentUser.id, ...item }));
+  }
+  if (error) return alert("Lỗi: " + error.message);
+
+  document.getElementById("workName").value = "";
+workProcessEditor.root.innerHTML = "";
+workFAQEditor.root.innerHTML = "";
+  editingWorkId = null;
+  document.querySelector('button[onclick="addWork()"]').innerText = "Lưu nghiệp vụ";
+  await loadDataFromBackend();
+  alert("Đã lưu nghiệp vụ.");
+}
+
+let editingWorkId = null;
+
+function editWork(id) {
+  const w = works.find(x => x.id === id);
+  if (!w) return;
+  editingWorkId = id;
+  document.getElementById("workName").value = w.title || "";
+  workProcessEditor.root.innerHTML = w.process || "";
+workFAQEditor.root.innerHTML = w.faq || "";
+  document.querySelector('button[onclick="addWork()"]').innerText = "Cập nhật nghiệp vụ";
+  showSection('work', [...document.querySelectorAll(".nav button")].find(b => b.getAttribute("onclick")?.includes("'work'")));
+  document.getElementById("workName").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+async function deleteWork(id) {
+  if (!confirm("Xóa nghiệp vụ này?")) return;
+  const { error } = await sb.from("work_processes").update({ deleted: true }).eq("id", id);
+  if (error) return alert("Lỗi: " + error.message);
+  await loadDataFromBackend();
+  renderAll();
+  alert("Đã xóa nghiệp vụ.");
+}
 
     // ==================== EXCEL ====================
 document.addEventListener("change", function(e) {
@@ -1085,6 +1347,45 @@ async function callAI(type, payload, targetId, btn) {
 
     // ==================== INIT ====================
     window.onload = async function() {
+workProcessEditor = new Quill("#workProcessEditor", {
+  theme: "snow",
+  modules: {
+    toolbar: [
+  [{ header: [1, 2, 3, false] }],
+  [{ font: [] }, { size: [] }],
+  ["bold", "italic", "underline"],
+  [{ color: [] }, { background: [] }],
+  [{ list: "ordered" }, { list: "bullet" }],
+
+  // 2 nút anh cần nè
+  [{ indent: "-1" }, { indent: "+1" }],
+
+  [{ align: [] }],
+  ["link"],
+  ["clean"]
+]
+  }
+});
+
+workFAQEditor = new Quill("#workFAQEditor", {
+  theme: "snow",
+  modules: {
+    toolbar: [
+  [{ header: [1, 2, 3, false] }],
+  [{ font: [] }, { size: [] }],
+  ["bold", "italic", "underline"],
+  [{ color: [] }, { background: [] }],
+  [{ list: "ordered" }, { list: "bullet" }],
+
+  // 2 nút anh cần nè
+  [{ indent: "-1" }, { indent: "+1" }],
+
+  [{ align: [] }],
+  ["link"],
+  ["clean"]
+]
+  }
+});
       // Xử lý khi quay lại từ link reset password
       const hash = window.location.hash;
       if (hash && hash.includes("type=recovery")) {
