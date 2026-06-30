@@ -63,10 +63,55 @@
     .nav { display: grid; gap: 10px; }
     .nav button { background: transparent; color: var(--text); text-align: left; box-shadow: none; }
     .nav button.active, .nav button:hover { background: var(--green-soft); color: var(--green-dark); transform: none; box-shadow: none; }
+.nav-sub { display: none; flex-direction: column; gap: 6px; padding-left: 14px; margin-top: 4px; }
+.nav-sub.open { display: flex; }
+.nav-sub button { font-size: 13px; padding: 9px 14px; }
+.nav-parent { display: flex; align-items: center; justify-content: space-between; }
+.nav-parent .arrow { transition: transform 0.2s; }
+.nav-parent.open .arrow { transform: rotate(90deg); }
     .logout { position: absolute; left: 22px; right: 22px; bottom: 22px; background: #111827; }
-    .content { padding: 30px; max-width: 1280px; width: 100%; }
+    .content { padding: 30px; max-width: 100%; width: 100%; }
     .topbar { display: flex; justify-content: space-between; align-items: center; gap: 18px; margin-bottom: 22px; }
     .topbar h1 { margin: 0; font-size: 32px; }
+.table-work { table-layout: fixed; width: 100%; }
+.table-work td, .table-work th { overflow-wrap: break-word; }
+.ql-editor img { max-width: 100%; height: auto; display: block; border-radius: 8px; margin: 8px 0; }
+.ql-editor img { cursor: zoom-in; }
+.ql-editor li.ql-indent-1 { padding-left: 3em !important; }
+.ql-editor li.ql-indent-2 { padding-left: 6em !important; }
+.ql-editor li.ql-indent-3 { padding-left: 9em !important; }
+.ql-editor li.ql-indent-4 { padding-left: 12em !important; }
+.ql-editor li.ql-indent-5 { padding-left: 15em !important; }
+.ql-editor li.ql-indent-6 { padding-left: 18em !important; }
+.ql-editor li.ql-indent-7 { padding-left: 21em !important; }
+.ql-editor li.ql-indent-8 { padding-left: 24em !important; }
+.ql-editor ul > li, .ql-editor ol > li { list-style-position: outside; }
+#imgLightbox {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999; padding: 40px; overflow: auto;
+}
+#imgLightbox img {
+  max-width: 90vw; max-height: 80vh; transition: transform 0.15s ease;
+  border-radius: 8px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  cursor: default;
+}
+#lightboxClose {
+  position: fixed; top: 20px; right: 24px; width: 44px; height: 44px;
+  border-radius: 50%; background: white; color: #111; font-size: 20px;
+  font-weight: 700; display: grid; place-items: center; padding: 0; z-index: 10000;
+}
+#lightboxClose:hover { background: var(--red); color: white; }
+#lightboxZoomControls {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 8px; background: white; padding: 8px; border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 10000;
+}
+#lightboxZoomControls button {
+  background: var(--green-soft); color: var(--green-dark); padding: 8px 14px;
+  font-size: 14px; box-shadow: none;
+}
+#lightboxZoomReset { background: white !important; border: 1px solid #e2e8f0; }
     .topbar p { margin: 6px 0 0; color: var(--muted); }
     .pill { background: white; border: 1px solid #dcfce7; padding: 12px 16px; border-radius: 999px; color: var(--green-dark); font-weight: 700; box-shadow: var(--shadow); }
     .hero { background: linear-gradient(135deg, var(--green), var(--green-dark)); color: white; border-radius: 30px; padding: 30px; margin-bottom: 22px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
@@ -74,7 +119,7 @@
     .hero h2 { font-size: 34px; margin: 0 0 8px; }
     .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-bottom: 22px; }
     .grid.two { grid-template-columns: repeat(2, 1fr); }
-    .card { background: white; border: 1px solid #dcfce7; border-radius: 24px; padding: 22px; box-shadow: var(--shadow); animation: rise 0.42s ease; }
+    .card { background: white; border: 1px solid #dcfce7; border-radius: 24px; padding: 22px; box-shadow: var(--shadow); animation: rise 0.42s ease; min-width: 0; overflow: hidden; }
     .card h3 { margin-top: 0; }
     .stat strong { font-size: 34px; color: var(--green-dark); display: block; }
     .muted { color: var(--muted); }
@@ -83,9 +128,12 @@
     .tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
     .tabs button { background: white; color: var(--green-dark); border: 1px solid #bbf7d0; box-shadow: none; }
     .tabs button.active { background: var(--green); color: white; }
-    .list { display: grid; gap: 12px; margin-top: 14px; }
-    .item { padding: 16px; border-radius: 18px; background: #f8fafc; border: 1px solid #e2e8f0; }
+    .list { display: grid; gap: 12px; margin-top: 14px; min-width: 0; }
+.item { padding: 16px; border-radius: 18px; background: #f8fafc; border: 1px solid #e2e8f0; min-width: 0; overflow-wrap: break-word; word-break: break-word; }
     .item-title { font-weight: 800; color: var(--green-dark); margin-bottom: 4px; }
+.item { padding: 16px; border-radius: 18px; background: #f8fafc; border: 1px solid #e2e8f0; min-width: 0; overflow-wrap: break-word; word-break: break-word; position: relative; }
+.item-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; }
+.item-actions button { padding: 6px 8px; width: auto; height: auto; line-height: 1; }
     .flashcard { min-height: 190px; display: grid; place-items: center; text-align: center; padding: 22px; border-radius: 22px; background: var(--green-soft); font-size: 30px; line-height: 1.45; font-weight: 750; margin-bottom: 14px; cursor: pointer; word-break: break-word; white-space: pre-line; }
     .flashcard small { display: block; margin-top: 8px; font-size: 18px; line-height: 1.45; font-weight: 500; color: var(--green-dark); }
     table { width: 100%; border-collapse: collapse; margin-top: 14px; overflow: hidden; border-radius: 16px; }
@@ -120,7 +168,7 @@
     <div id="loginForm" class="login-card">
       <div class="logo">绿</div>
       <h1>Green Learning Hub</h1>
-      <p class="hint">Đăng nhập để bắt đầu nhé!!</p>
+      <p class="hint">Đăng nhập để bắt đầu học.</p>
 
       <div id="loginError" class="msg-box msg-error"></div>
       <div id="loginSuccess" class="msg-box msg-success"></div>
@@ -146,7 +194,7 @@
     <div id="registerForm" class="login-card hidden">
       <div class="logo">绿</div>
       <h1>Đăng ký</h1>
-      <p class="hint">Tạo tài khoản mới để bắt đầu !!</p>
+      <p class="hint">Tạo tài khoản mới để bắt đầu học.</p>
 
       <div id="regError" class="msg-box msg-error"></div>
       <div id="regSuccess" class="msg-box msg-success"></div>
@@ -165,7 +213,7 @@
     <div id="forgotForm" class="login-card hidden">
       <div class="logo">绿</div>
       <h1>Quên mật khẩu</h1>
-      <p class="hint">Nhập email, bạn sẽ nhận link đặt lại mật khẩu trong hộp thư.</p>
+      <p class="hint">Nhập email, anh sẽ nhận link đặt lại mật khẩu trong hộp thư.</p>
 
       <div id="forgotError" class="msg-box msg-error"></div>
       <div id="forgotSuccess" class="msg-box msg-success"></div>
@@ -190,13 +238,25 @@
           <p>Language · Review · Work</p>
         </div>
       </div>
-      <div class="nav">
-        <button class="active" onclick="showSection('dashboard', this)">Dashboard</button>
-        <button onclick="showSection('language', this)">Học ngoại ngữ</button>
-        <button onclick="showSection('import', this)">Import Excel</button>
-        <button onclick="showSection('review', this)">Ôn lại kiến thức</button>
-        <button onclick="showSection('work', this)">Nghiệp vụ công việc</button>
-      </div>
+    <div class="nav">
+  <button class="active" onclick="showSection('dashboard', this)">Dashboard</button>
+  <button onclick="showSection('language', this)">Học ngoại ngữ</button>
+  <button onclick="showSection('import', this)">Import Excel</button>
+  <button onclick="showSection('review', this)">Ôn lại kiến thức</button>
+  <button onclick="showSection('work', this)">Nghiệp vụ công việc</button>
+
+  <button class="nav-parent" id="archiveParentBtn" onclick="toggleArchiveMenu()">
+    <span>Danh sách lưu trữ</span>
+    <span class="arrow">▶</span>
+  </button>
+  <div class="nav-sub" id="archiveSubMenu">
+    <button onclick="openArchive('vocab')">📘 Từ vựng</button>
+    <button onclick="openArchive('grammar')">📐 Ngữ pháp</button>
+    <button onclick="openArchive('paragraph')">📄 Đoạn văn</button>
+    <button onclick="openArchive('video')">🎬 Video</button>
+    <button onclick="openArchive('work')">🛠 Nghiệp vụ</button>
+  </div>
+</div>
       <button class="logout" onclick="logout()">Đăng xuất</button>
     </aside>
 
@@ -211,7 +271,7 @@
 
       <section id="dashboard" class="section active">
         <div class="hero">
-          <h2>Hôm nay mình sẽ làm gì?</h2>
+          <h2>Hôm nay mình học gì?</h2>
           <p>Tập trung vào từ vựng, ngữ pháp, luyện dịch và nghiệp vụ công việc.</p>
         </div>
 
@@ -252,13 +312,49 @@
         </div>
         <div class="grid two">
           <div class="card">
-            <h3>Thêm từ vựng</h3>
-            <input id="vocabTerm" placeholder="Từ / 汉字 / Word" />
-            <input id="vocabPinyin" placeholder="Pinyin / Pronunciation" />
-            <input id="vocabMeaning" placeholder="Nghĩa tiếng Việt" />
-            <textarea id="vocabExample" placeholder="Ví dụ"></textarea>
-            <button onclick="addVocab()">Lưu từ vựng</button>
-          </div>
+  <h3>Thêm từ vựng</h3>
+  <input id="vocabTerm" placeholder="Từ / 汉字 / Word" />
+  <input id="vocabPinyin" placeholder="Pinyin / Pronunciation" />
+  <input id="vocabMeaning" placeholder="Nghĩa tiếng Việt" />
+  <textarea id="vocabExample" placeholder="Ví dụ"></textarea>
+
+  <div class="grid two" style="margin:0;">
+    <select id="vocabWordType">
+      <option value="">-- Loại từ --</option>
+      <option value="Danh từ">Danh từ</option>
+      <option value="Động từ">Động từ</option>
+      <option value="Tính từ">Tính từ</option>
+      <option value="Trạng từ">Trạng từ</option>
+      <option value="Lượng từ">Lượng từ</option>
+      <option value="Đại từ">Đại từ</option>
+      <option value="Giới từ">Giới từ</option>
+      <option value="Liên từ">Liên từ</option>
+      <option value="Khác">Khác</option>
+    </select>
+    <select id="vocabHsk">
+      <option value="">-- Cấp độ HSK --</option>
+      <option value="1">HSK 1</option>
+      <option value="2">HSK 2</option>
+      <option value="3">HSK 3</option>
+      <option value="4">HSK 4</option>
+      <option value="5">HSK 5</option>
+      <option value="6">HSK 6</option>
+      <option value="7-9">HSK 7-9</option>
+    </select>
+  </div>
+
+  <select id="vocabSaveType" onchange="document.getElementById('vocabLessonWrap').classList.toggle('hidden', this.value !== 'lesson')">
+    <option value="general">Từ vựng tổng quan</option>
+    <option value="lesson">Theo bài học / ngày</option>
+  </select>
+
+  <div id="vocabLessonWrap" class="hidden grid two" style="margin:0;">
+    <input id="vocabLessonName" placeholder="Tên bài học: VD Bài 5" />
+    <input id="vocabLessonDate" type="date" />
+  </div>
+
+  <button onclick="addVocab()">Lưu từ vựng</button>
+</div>
           <div class="card">
             <h3>Thêm ngữ pháp</h3>
             <input id="grammarTitle" placeholder="Tên ngữ pháp: 比...更..." />
@@ -322,10 +418,16 @@
       </select>
     </div>
 
-    <div id="lessonDateWrap" class="hidden">
-     <label class="muted">Tên bài học / ngày học <span style="color:var(--red)">*</span></label>
-      <input id="importLessonName" placeholder="VD: Bài 5 - 30/06/2026" />
-    </div>
+    <div id="lessonDateWrap" class="hidden grid two" style="margin:0;">
+  <div>
+    <label class="muted">Tên bài học <span style="color:var(--red)">*</span></label>
+    <input id="importLessonName" placeholder="VD: Bài 5" />
+  </div>
+  <div>
+    <label class="muted">Ngày học <span style="color:var(--red)">*</span></label>
+    <input id="importLessonDate" type="date" />
+  </div>
+</div>
 
     <button onclick="downloadTemplate()" style="background:white; color:var(--green-dark); border:1px solid #bbf7d0; box-shadow:none; margin-top:10px;">📥 Tải template mẫu (.xlsx)</button>
     <input type="file" id="excelFile" accept=".xlsx,.xls,.csv" />
@@ -840,21 +942,19 @@ function renderGrammarReview() {
       }
     }
 
- function renderWork() {
+function renderWork() {
   const mw = works.filter(visible);
   document.getElementById("workList").innerHTML = mw.length
     ? mw.slice(0,3).map(w => `
       <div class="item">
-        <div style="display:flex; justify-content:space-between; align-items:start; gap:10px;">
-          <div style="flex:1;">
-            <div class="item-title">${w.title}</div>
-            <b>Quy trình:</b><br>${w.process||"Chưa có"}<br><br>
-            <b>FAQ:</b><br>${w.faq||"Chưa có"}
-          </div>
-          <div style="display:flex; gap:6px; flex-shrink:0;">
-            <button onclick="editWork('${w.id}')" title="Sửa" style="padding:8px 10px;">✏️</button>
-            <button onclick="deleteWork('${w.id}')" title="Xóa" style="padding:8px 10px; background:var(--red);">🗑️</button>
-          </div>
+        <div class="item-actions">
+          <button onclick="editWork('${w.id}')" title="Sửa">✏️</button>
+          <button onclick="deleteWork('${w.id}')" title="Xóa" style="background:var(--red);">🗑️</button>
+        </div>
+        <div style="padding-right:70px;">
+          <div class="item-title">${w.title}</div>
+          <b>Quy trình:</b><br><div class="ql-editor" style="padding:0;">${w.process||"Chưa có"}</div><br>
+          <b>FAQ:</b><br><div class="ql-editor" style="padding:0;">${w.faq||"Chưa có"}</div>
         </div>
       </div>`).join("") + `<button class="link-btn" onclick="showDetailPage('work')">Xem chi tiết →</button>`
     : "<p class='muted'>Chưa có nghiệp vụ.</p>";
@@ -917,21 +1017,18 @@ function getDetailData(type) {
       </div>
     </div>`
 },
-    work: {
+ work: {
   data: works.filter(visible),
   label: "Nghiệp vụ",
   fields: x => `
-    <div style="display:flex; justify-content:space-between; gap:10px;">
-      <div style="flex:1;">
-        <b>${x.title}</b><br>
-        <b>Quy trình:</b> ${x.process || "Chưa có"}<br>
-        <b>FAQ:</b> ${x.faq || "Chưa có"}
-      </div>
-
-      <div style="display:flex; gap:6px; flex-shrink:0;">
-        <button onclick="editWork('${x.id}')" style="padding:6px 8px;">✏️</button>
-        <button onclick="deleteWork('${x.id}')" style="padding:6px 8px; background:var(--red);">🗑️</button>
-      </div>
+    <div class="item-actions">
+      <button onclick="editWork('${x.id}')">✏️</button>
+      <button onclick="deleteWork('${x.id}')" style="background:var(--red);">🗑️</button>
+    </div>
+    <div style="padding-right:70px;">
+      <b>${x.title}</b><br>
+      <b>Quy trình:</b> <div class="ql-editor" style="padding:0;">${x.process || "Chưa có"}</div>
+      <b>FAQ:</b> <div class="ql-editor" style="padding:0;">${x.faq || "Chưa có"}</div>
     </div>`
 }
 };
@@ -954,6 +1051,16 @@ function showDetailPage(type) {
   document.querySelectorAll(".section").forEach(s => s.classList.remove("active"));
   document.getElementById("detailPage").classList.add("active");
   renderDetailList();
+}
+
+function toggleArchiveMenu() {
+  document.getElementById("archiveSubMenu").classList.toggle("open");
+  document.getElementById("archiveParentBtn").classList.toggle("open");
+}
+
+function openArchive(type) {
+  document.querySelectorAll(".nav > button").forEach(b => b.classList.remove("active"));
+  showDetailPage(type);
 }
 
 function backFromDetail() {
@@ -989,33 +1096,93 @@ function renderDetailList() {
 
   const el = document.getElementById("detailList");
 
-  if (type === "vocab") {
+if (type === "vocab") {
     if (!pageItems.length) {
       el.innerHTML = "<p class='muted'>Không có dữ liệu.</p>";
     } else {
       const prefix = (x) => (x.language === "en" ? "EN" : "ZH");
-      el.innerHTML = `<table>
+      const cols = [
+        { key: "id", label: "ID từ" },
+        { key: "term", label: "Từ vựng" },
+        { key: "pinyin", label: "Phiên âm" },
+        { key: "meaning_vi", label: "Nghĩa" },
+        { key: "word_type", label: "Loại từ" },
+        { key: "hsk", label: "HSK" },
+        { key: "example", label: "Ví dụ" },
+        { key: "lesson", label: "Bài học" },
+        { key: "date_added", label: "Ngày thêm" },
+        { key: "time_added", label: "Giờ thêm" },
+        { key: "learned", label: "Đã học" },
+        { key: "actions", label: "Thao tác" }
+      ];
+      const hidden = JSON.parse(localStorage.getItem("vocabHiddenCols") || "[]");
+
+      el.innerHTML = `
+        <div style="display:flex; justify-content:flex-end; margin-bottom:10px;">
+          <button onclick="toggleColumnPicker()" style="background:white; color:var(--green-dark); border:1px solid #bbf7d0; box-shadow:none; padding:8px 14px;">⚙ Ẩn/hiện cột</button>
+        </div>
+        <div id="columnPicker" class="hidden card" style="margin-bottom:10px; padding:14px;">
+          ${cols.filter(c => c.key !== "actions").map(c => `
+            <label style="display:inline-flex; align-items:center; gap:6px; margin:4px 10px 4px 0; font-size:13px;">
+              <input type="checkbox" data-col="${c.key}" ${hidden.includes(c.key) ? "" : "checked"} onchange="toggleVocabColumn('${c.key}', this.checked)" /> ${c.label}
+            </label>`).join("")}
+        </div>
+        <table>
+          <thead><tr>${cols.filter(c => !hidden.includes(c.key)).map(c => `<th>${c.label}</th>`).join("")}</tr></thead>
+          <tbody>
+            ${pageItems.map((x, i) => {
+              const globalIndex = start + i;
+              const id = prefix(x) + String(globalIndex + 1).padStart(3, "0");
+              const created = x.created_at ? new Date(x.created_at) : null;
+              const dateStr = created ? created.toLocaleDateString("vi-VN") : "";
+              const timeStr = created ? created.toLocaleTimeString("vi-VN", { hour12: false }) : "";
+              const cells = {
+                id, term: x.term||"", pinyin: x.pinyin||"", meaning_vi: x.meaning_vi||"",
+                word_type: x.word_type||"", hsk: x.grammar_note||"", example: x.example||"",
+                lesson: (x.category && x.category !== "Từ vựng tổng quan") ? (x.category + (x.lesson_date ? " - " + new Date(x.lesson_date).toLocaleDateString("vi-VN") : "")) : "Tổng quan",
+                date_added: dateStr, time_added: timeStr,
+                learned: `<input type="checkbox" ${x.learned ? "checked" : ""} onchange="toggleLearned('${x.id}', this.checked)" />`,
+                actions: `<button class="icon-btn" onclick="editVocab('${x.id}')" title="Sửa">✏️</button><button class="icon-btn icon-btn-danger" onclick="deleteVocab('${x.id}')" title="Xóa">🗑️</button>`
+              };
+              return `<tr>${cols.filter(c => !hidden.includes(c.key)).map(c => `<td style="${c.key==='learned'||c.key==='actions'?'text-align:center;':''}">${cells[c.key]}</td>`).join("")}</tr>`;
+            }).join("")}
+          </tbody>
+        </table>`;
+    }
+  function toggleColumnPicker() {
+  document.getElementById("columnPicker").classList.toggle("hidden");
+}
+
+function toggleVocabColumn(key, checked) {
+  let hidden = JSON.parse(localStorage.getItem("vocabHiddenCols") || "[]");
+  if (checked) hidden = hidden.filter(k => k !== key);
+  else if (!hidden.includes(key)) hidden.push(key);
+  localStorage.setItem("vocabHiddenCols", JSON.stringify(hidden));
+  renderDetailList();
+}
+} else if (type === "work") {
+    if (!pageItems.length) {
+      el.innerHTML = "<p class='muted'>Không có dữ liệu.</p>";
+    } else {
+      el.innerHTML = `<table class="table-work">
   <thead><tr>
-    <th>ID từ</th><th>Từ vựng</th><th>Phiên âm</th><th>Nghĩa</th><th>Loại từ / Ghi chú</th><th>Ví dụ</th><th>Đã học</th><th>Thao tác</th>
+    <th style="width:5%;">STT</th>
+    <th style="width:14%;">Tên nghiệp vụ</th>
+    <th style="width:38%;">Quy trình</th>
+    <th style="width:35%;">FAQ</th>
+    <th style="width:8%; text-align:center;">Thao tác</th>
   </tr></thead>
   <tbody>
-    ${pageItems.map((x, i) => {
-      const globalIndex = start + i;
-      const id = prefix(x) + String(globalIndex + 1).padStart(3, "0");
-      return `<tr>
-        <td>${id}</td>
-        <td>${x.term||""}</td>
-        <td>${x.pinyin||""}</td>
-        <td>${x.meaning_vi||""}</td>
-        <td>${x.grammar_note||""}</td>
-        <td>${x.example||""}</td>
-        <td style="text-align:center;"><input type="checkbox" ${x.learned ? "checked" : ""} onchange="toggleLearned('${x.id}', this.checked)" /></td>
-        <td style="display:flex; gap:6px;">
-          <button onclick="editVocab('${x.id}')" style="padding:6px 8px;">✏️</button>
-          <button onclick="deleteVocab('${x.id}')" style="padding:6px 8px; background:var(--red);">🗑️</button>
+    ${pageItems.map((x, i) => `<tr>
+        <td>${start + i + 1}</td>
+        <td><b>${x.title||""}</b></td>
+        <td><div class="ql-editor" style="padding:0; max-height:160px; overflow-y:auto;">${x.process||"Chưa có"}</div></td>
+        <td><div class="ql-editor" style="padding:0; max-height:160px; overflow-y:auto;">${x.faq||"Chưa có"}</div></td>
+        <td style="text-align:center; vertical-align:top;">
+          <button class="icon-btn" onclick="editWork('${x.id}')" title="Sửa">✏️</button>
+          <button class="icon-btn icon-btn-danger" onclick="deleteWork('${x.id}')" title="Xóa">🗑️</button>
         </td>
-      </tr>`;
-    }).join("")}
+      </tr>`).join("")}
   </tbody>
 </table>`;
     }
@@ -1047,7 +1214,25 @@ function goToDetailPage(p) {
 let editingVocabId = null;
 
 async function addVocab() {
-  const item = { language: currentLanguage, category: "manual", term: document.getElementById("vocabTerm").value.trim(), pinyin: document.getElementById("vocabPinyin").value.trim(), meaning_vi: document.getElementById("vocabMeaning").value.trim(), example: document.getElementById("vocabExample").value.trim() };
+  const saveType = document.getElementById("vocabSaveType").value;
+  const lessonName = document.getElementById("vocabLessonName").value.trim();
+  const lessonDate = document.getElementById("vocabLessonDate").value;
+
+  if (saveType === "lesson" && (!lessonName || !lessonDate)) {
+    return alert("Nhập đủ tên bài học và ngày học.");
+  }
+
+  const item = {
+    language: currentLanguage,
+    category: saveType === "lesson" ? lessonName : "Từ vựng tổng quan",
+    term: document.getElementById("vocabTerm").value.trim(),
+    pinyin: document.getElementById("vocabPinyin").value.trim(),
+    meaning_vi: document.getElementById("vocabMeaning").value.trim(),
+    example: document.getElementById("vocabExample").value.trim(),
+    word_type: document.getElementById("vocabWordType").value,
+    grammar_note: document.getElementById("vocabHsk").value,
+    lesson_date: saveType === "lesson" ? lessonDate : null
+  };
   if (!item.term || !item.meaning_vi) return alert("Nhập từ và nghĩa.");
 
   let error;
@@ -1058,7 +1243,11 @@ async function addVocab() {
   }
   if (error) return alert("Lỗi: " + error.message);
 
-  ["vocabTerm","vocabPinyin","vocabMeaning","vocabExample"].forEach(id => document.getElementById(id).value = "");
+  ["vocabTerm","vocabPinyin","vocabMeaning","vocabExample","vocabLessonName","vocabLessonDate"].forEach(id => document.getElementById(id).value = "");
+  document.getElementById("vocabWordType").value = "";
+  document.getElementById("vocabHsk").value = "";
+  document.getElementById("vocabSaveType").value = "general";
+  document.getElementById("vocabLessonWrap").classList.add("hidden");
   editingVocabId = null;
   document.querySelector('button[onclick="addVocab()"]').innerText = "Lưu từ vựng";
   await loadDataFromBackend(); renderAll();
@@ -1074,6 +1263,13 @@ function editVocab(id) {
   document.getElementById("vocabPinyin").value = v.pinyin || "";
   document.getElementById("vocabMeaning").value = v.meaning_vi || "";
   document.getElementById("vocabExample").value = v.example || "";
+  document.getElementById("vocabWordType").value = v.word_type || "";
+  document.getElementById("vocabHsk").value = v.grammar_note || "";
+  const isLesson = v.category && v.category !== "Từ vựng tổng quan";
+  document.getElementById("vocabSaveType").value = isLesson ? "lesson" : "general";
+  document.getElementById("vocabLessonWrap").classList.toggle("hidden", !isLesson);
+  document.getElementById("vocabLessonName").value = isLesson ? v.category : "";
+  document.getElementById("vocabLessonDate").value = v.lesson_date || "";
   document.querySelector('button[onclick="addVocab()"]').innerText = "Cập nhật từ vựng";
   showSection('language', [...document.querySelectorAll(".nav button")].find(b => b.getAttribute("onclick")?.includes("'language'")));
   document.getElementById("vocabTerm").scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1295,9 +1491,10 @@ function downloadTemplate() {
   const hsk = document.getElementById("importHsk").value;
   const saveType = document.getElementById("importSaveType").value;
   const lessonName = document.getElementById("importLessonName").value.trim();
+  const lessonDate = document.getElementById("importLessonDate").value;
 
   if (!hsk) return alert("Chọn cấp độ HSK trước khi lưu.");
-  if (saveType === "lesson" && !lessonName) return alert("Nhập tên bài học / ngày học.");
+  if (saveType === "lesson" && (!lessonName || !lessonDate)) return alert("Nhập đủ tên bài học và ngày học.");
 
   const mapped = previewRows.map(r => ({
     user_id: currentUser.id,
@@ -1307,7 +1504,9 @@ function downloadTemplate() {
     pinyin: r.pinyin || r["Phiên âm"] || r["Pronunciation"] || "",
     meaning_vi: r.meaning_vi || r.meaning || r.vi || r["Nghĩa tiếng việt"] || r["Meaning"] || "",
     example: r.example || r["Đặt câu"] || r["Example"] || "",
+    word_type: r["Loại từ"] || r.word_type || "",
     grammar_note: hsk,
+    lesson_date: saveType === "lesson" ? lessonDate : null,
     video_link: ""
   })).filter(x => x.term);
 
@@ -1403,13 +1602,48 @@ workFAQEditor = new Quill("#workFAQEditor", {
       }
     };
 
-    // Enter key
-    document.addEventListener("keydown", function(e) {
-      if (e.key !== "Enter") return;
-      if (!document.getElementById("loginForm").classList.contains("hidden")) loginEmail();
-      if (!document.getElementById("registerForm").classList.contains("hidden")) registerEmail();
-      if (!document.getElementById("forgotForm").classList.contains("hidden")) resetPassword();
-    });
+ document.addEventListener("click", function(e) {
+  if (e.target.tagName === "IMG" && e.target.closest(".ql-editor")) {
+    openImageLightbox(e.target.src);
+  }
+});
+
+function openImageLightbox(src) {
+  let scale = 1;
+  const overlay = document.createElement("div");
+  overlay.id = "imgLightbox";
+  overlay.innerHTML = `
+    <button id="lightboxClose" title="Đóng">✕</button>
+    <div id="lightboxZoomControls">
+      <button id="lightboxZoomOut">－</button>
+      <button id="lightboxZoomReset">100%</button>
+      <button id="lightboxZoomIn">＋</button>
+    </div>
+    <img id="lightboxImg" src="${src}" />
+  `;
+  document.body.appendChild(overlay);
+  document.body.style.overflow = "hidden";
+
+  const img = document.getElementById("lightboxImg");
+
+  function applyScale() {
+    img.style.transform = `scale(${scale})`;
+  }
+  function closeLightbox() {
+    overlay.remove();
+    document.body.style.overflow = "";
+  }
+
+  document.getElementById("lightboxClose").onclick = closeLightbox;
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) closeLightbox(); });
+  document.getElementById("lightboxZoomIn").onclick = () => { scale = Math.min(scale + 0.25, 4); applyScale(); };
+  document.getElementById("lightboxZoomOut").onclick = () => { scale = Math.max(scale - 0.25, 0.5); applyScale(); };
+  document.getElementById("lightboxZoomReset").onclick = () => { scale = 1; applyScale(); };
+
+  const escHandler = (e) => { if (e.key === "Escape") { closeLightbox(); document.removeEventListener("keydown", escHandler); } };
+  document.addEventListener("keydown", escHandler);
+}
+
   </script>
 </body>
 </html>
