@@ -469,77 +469,81 @@
       showMsg("forgotSuccess", "Đã gửi! Kiểm tra hộp thư (có thể ở mục Spam).");
     }
 
-    // ==================== PROFILE ====================
-    async function loadOrCreateProfile(inputName) {
-      try {
-        const { data } = await sb.from("profiles").select("*").eq("id", currentUser.id).maybeSingle();
+// ==================== LOAD PROFILE - SỬA LẠI ====================
+async function loadOrCreateProfile(inputName) {
+  // Mặc định trước, tránh null
+  currentProfile = { 
+    id: currentUser.id, 
+    full_name: inputName || currentUser.user_metadata?.full_name || currentUser.email?.split("@")[0] || "User" 
+  };
 
-        if (data) {
-          if (inputName && inputName !== data.full_name) {
-            const { data: updated } = await sb.from("profiles").update({ full_name: inputName }).eq("id", currentUser.id).select().single();
-            currentProfile = updated || data;
-          } else {
-            currentProfile = data;
-          }
-        } else {
-          const displayName = inputName || currentUser.user_metadata?.full_name || currentUser.email?.split("@")[0] || "User";
-          const { data: created } = await sb.from("profiles").insert({ id: currentUser.id, full_name: displayName }).select().single();
-          currentProfile = created || { id: currentUser.id, full_name: displayName };
-        }
-      } catch (e) {
-        currentProfile = { id: currentUser.id, full_name: inputName || "User" };
+  try {
+    const { data, error } = await sb.from("profiles").select("*").eq("id", currentUser.id).maybeSingle();
+
+    if (error) {
+      console.error("Lỗi query profile:", error);
+      return; // Giữ mặc định, không crash
+    }
+
+    if (data) {
+      currentProfile = data;
+      // Cập nhật tên nếu user nhập mới
+      if (inputName && inputName !== data.full_name) {
+        const { data: updated } = await sb.from("profiles").update({ full_name: inputName }).eq("id", currentUser.id).select().single();
+        if (updated) currentProfile = updated;
       }
-    }
+    } else {
+      // Chưa có profile → tạo mới
+      const { data: created, error: insertErr } = await sb.from("profiles").insert({ 
+        id: currentUser.id, 
+        full_name: currentProfile.full_name 
+      }).select().single();
 
-    function editName() {
-      const newName = prompt("Nhập tên hiển thị mới:", currentProfile?.full_name || "");
-      if (newName && newName.trim()) {
-        sb.from("profiles").update({ full_name: newName.trim() }).eq("id", currentUser.id).then(({ data }) => {
-          if (data) { currentProfile = data; renderNameDisplay(); }
-        });
-      }
+      if (created) currentProfile = created;
+      if (insertErr) console.error("Lỗi tạo profile:", insertErr);
     }
+  } catch (e) {
+    console.error("Profile exception:", e);
+    // Giữ currentProfile mặc định, KHÔNG crash
+  }
+}
 
-    function renderNameDisplay() {
-      const name = currentProfile?.full_name || "User";
-      document.getElementById("nameDisplay").textContent = name;
-      document.getElementById("welcomeText").textContent = "Xin chào " + name + " 👋";
-    }
+// ==================== SHOW APP - SỬA LẠI ====================
+function showApp() {
+  document.getElementById("authPage").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  
+  // Luôn gọi, không phụ thuộc currentProfile
+  const name = currentProfile?.full_name || currentUser.email?.split("@")[0] || "User";
+  document.getElementById("nameDisplay").textContent = name;
+  document.getElementById("welcomeText").textContent = "Xin chào " + name + " 👋";
+  
+  renderAll();
+}
 
-    // ==================== LOGOUT ====================
-    async function logout() {
-      await sb.auth.signOut();
-      currentUser = null;
-      currentProfile = null;
-      document.getElementById("app").classList.add("hidden");
-      document.getElementById("authPage").classList.remove("hidden");
-      showForm("login");
-    }
+// ==================== LOAD DATA - SỬA LẠI ====================
+async function loadDataFromBackend() {
+  try {
+    const [v, g, p, vi, w] = await Promise.all([
+      sb.from("vocabulary_items").select("*").order("created_at", { ascending: false }),
+      sb.from("grammar_items").select("*").order("created_at", { ascending: false }),
+      sb.from("paragraph_items").select("*").order("created_at", { ascending: false }),
+      sb.from("video_links").select("*").order("created_at", { ascending: false }),
+      sb.from("work_processes").select("*").order("created_at", { ascending: false })
+    ]);
 
-    // ==================== LOAD DATA ====================
-    async function loadDataFromBackend() {
-      try {
-        const [v, g, p, vi, w] = await Promise.all([
-          sb.from("vocabulary_items").select("*").order("created_at", { ascending: false }),
-          sb.from("grammar_items").select("*").order("created_at", { ascending: false }),
-          sb.from("paragraph_items").select("*").order("created_at", { ascending: false }),
-          sb.from("video_links").select("*").order("created_at", { ascending: false }),
-          sb.from("work_processes").select("*").order("created_at", { ascending: false })
-        ]);
-        vocab = v.data || []; grammar = g.data || []; paragraphs = p.data || [];
-        videos = vi.data || []; works = w.data || [];
-        renderAll();
-      } catch (e) { console.error("Load error:", e); }
-    }
+    vocab = v.data || [];
+    grammar = g.data || [];
+    paragraphs = p.data || [];
+    videos = vi.data || [];
+    works = w.data || [];
 
-    function showApp() {
-      document.getElementById("authPage").classList.add("hidden");
-      document.getElementById("app").classList.remove("hidden");
-      renderNameDisplay();
-      renderAll();
-    }
-
-    function owner(item) { return item.user_id === currentUser?.id; }
+    console.log("Loaded:", vocab.length, "vocab,", grammar.length, "grammar,", works.length, "work");
+  } catch (e) {
+    console.error("Load data error:", e);
+    // Không crash, giữ data rỗng
+  }
+}
 
     // ==================== SECTIONS ====================
     function showSection(id, btn) {
