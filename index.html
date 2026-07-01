@@ -1276,7 +1276,7 @@ function editVocab(id) {
 }
 
 async function deleteVocab(id) {
-  if (!confirm("Xóa từ vựng này? (Vẫn lưu lại trong hệ thống)")) return;
+  if (!confirm("Xóa từ vựng này?")) return;
   const { error } = await sb.from("vocabulary_items").update({ deleted: true }).eq("id", id);
   if (error) return alert("Lỗi: " + error.message);
   await loadDataFromBackend(); renderAll();
